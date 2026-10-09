@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.audit.AuditRecord;
 import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal;
-import com.tuon.tbank.enums.TransactionStatus;
+import com.tuon.tbank.enums.transaction.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

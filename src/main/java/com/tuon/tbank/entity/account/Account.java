@@ -10,7 +10,7 @@ import com.tuon.tbank.entity.investment.InvestmentTransaction;
 import com.tuon.tbank.entity.transaction.*;
 import com.tuon.tbank.entity.transaction.endpoint.TransferEndpoint;
 import com.tuon.tbank.entity.transaction.scheduledTransaction.ScheduledTransaction;
-import com.tuon.tbank.enums.AccountStatus;
+import com.tuon.tbank.enums.account.AccountStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +39,7 @@ public abstract class Account implements TransferEndpoint {
     private String accountNumber;
     private BigDecimal balance;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate openingDate;
 
     @Enumerated(EnumType.STRING)

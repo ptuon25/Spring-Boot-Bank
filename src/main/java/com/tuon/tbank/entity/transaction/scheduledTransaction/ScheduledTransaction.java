@@ -3,7 +3,7 @@ package com.tuon.tbank.entity.transaction.scheduledTransaction;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.Account;
-import com.tuon.tbank.enums.ScheduledTransactionStatus;
+import com.tuon.tbank.enums.transaction.ScheduledTransactionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -2,8 +2,8 @@ package com.tuon.tbank.entity.person;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal;
-import com.tuon.tbank.enums.EmployeeRole;
-import com.tuon.tbank.enums.EmployeeStatus;
+import com.tuon.tbank.enums.person.EmployeeRole;
+import com.tuon.tbank.enums.person.EmployeeStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,7 @@ public class Employee extends Person {
     @Enumerated(EnumType.STRING)
     private EmployeeRole role;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate admissionDate;
 
     @Enumerated(EnumType.STRING)

@@ -7,10 +7,17 @@ import com.tuon.tbank.entity.account.SavingsAccount;
 import com.tuon.tbank.entity.company.Company;
 import com.tuon.tbank.entity.person.Client;
 import com.tuon.tbank.entity.person.Employee;
+import com.tuon.tbank.entity.transaction.*;
 import com.tuon.tbank.entity.transaction.external.ExternalAccount;
 import com.tuon.tbank.entity.transaction.external.ExternalBank;
 import com.tuon.tbank.entity.transaction.external.PaymentAccount;
-import com.tuon.tbank.enums.*;
+import com.tuon.tbank.enums.account.AccountStatus;
+import com.tuon.tbank.enums.company.CompanyStatus;
+import com.tuon.tbank.enums.person.ClientStatus;
+import com.tuon.tbank.enums.person.EmployeeRole;
+import com.tuon.tbank.enums.person.EmployeeStatus;
+import com.tuon.tbank.enums.transaction.PaymentType;
+import com.tuon.tbank.enums.transaction.TransactionStatus;
 import com.tuon.tbank.repository.account.BusinessAccountRepository;
 import com.tuon.tbank.repository.account.CheckingAccountRepository;
 import com.tuon.tbank.repository.account.JointAccountRepository;
@@ -18,16 +25,16 @@ import com.tuon.tbank.repository.account.SavingsAccountRepository;
 import com.tuon.tbank.repository.company.CompanyRepository;
 import com.tuon.tbank.repository.person.ClientRepository;
 import com.tuon.tbank.repository.person.EmployeeRepository;
-import com.tuon.tbank.repository.transaction.ExternalAccountRepository;
-import com.tuon.tbank.repository.transaction.ExternalBankRepository;
-import com.tuon.tbank.repository.transaction.PaymentAccountRepository;
+import com.tuon.tbank.repository.transaction.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 /**
@@ -63,6 +70,18 @@ public class TestConfig implements CommandLineRunner {
     private ExternalAccountRepository externalAccountRepository;
     @Autowired
     private PaymentAccountRepository paymentAccountRepository;
+    @Autowired
+    private DepositRepository depositRepository;
+    @Autowired
+    private WithdrawalRepository withdrawalRepository;
+    @Autowired
+    private TransferRepository transferRepository;
+    @Autowired
+    private PixTransferRepository pixTransferRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private InternationalTransferRepository internationalTransferRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -85,7 +104,7 @@ public class TestConfig implements CommandLineRunner {
 
         employeeRepository.saveAll(Arrays.asList(employee1, employee2));
 
-        Company company1 = new Company(null, "Tech Solutions Ltda", "Tech Solutions", client1, "123.456.789-0",
+        Company company1 = new Company(null, "Tech Solutions Ltd", "Tech Solutions", client1, "123.456.789-0",
                 LocalDate.of(1995,2,20), LocalDate.of(2019,3,14),
                 CompanyStatus.ACTIVE);
         Company company2 = new Company(null, "Green Energy Inc", "Green Energy", client2, "987.654.321-0",
@@ -127,7 +146,35 @@ public class TestConfig implements CommandLineRunner {
 
         paymentAccountRepository.save(paymentAccount);
 
+        Deposit deposit1 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:31:15.00"), TransactionStatus.COMPLETED,cAccount);
+        Deposit deposit2 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:38:15.00"), TransactionStatus.COMPLETED,bAccount1);
+        Deposit deposit3 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:38:15.00"), TransactionStatus.COMPLETED,bAccount2);
 
+        depositRepository.saveAll(Arrays.asList(deposit1, deposit2, deposit3));
+
+        Withdrawal withdrawal1 = new Withdrawal(null, BigDecimal.valueOf(50.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,cAccount);
+        Withdrawal withdrawal2 = new Withdrawal(null, BigDecimal.valueOf(200.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,jAccount);
+        Withdrawal withdrawal3 = new Withdrawal(null, BigDecimal.valueOf(10.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,sAccount);
+
+        withdrawalRepository.saveAll(Arrays.asList(withdrawal1, withdrawal2, withdrawal3));
+
+        Transfer transfer = new Transfer(null, BigDecimal.valueOf(150.00),LocalDateTime.parse("2026-10-08T17:42:14"), TransactionStatus.COMPLETED, bAccount1, bAccount2);
+
+        transferRepository.save(transfer);
+
+        PixTransfer pix1 = new PixTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T17:47:45.00"), TransactionStatus.COMPLETED, cAccount, sAccount, "0000001T000001SP");
+        PixTransfer pix2 = new PixTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T17:48:45.00"), TransactionStatus.COMPLETED, sAccount, jAccount, "0000001T000001SP");
+
+        pixTransferRepository.saveAll(Arrays.asList(pix1,pix2));
+
+        Payment payment = new Payment(null, BigDecimal.valueOf(200.00), LocalDateTime.parse("2026-10-08T17:51:12.00"), TransactionStatus.COMPLETED, bAccount1, paymentAccount, PaymentType.TICKET);
+
+        paymentRepository.save(payment);
+
+        InternationalTransfer iTransfer1 = new InternationalTransfer(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T18:07:12.00"), TransactionStatus.COMPLETED,bAccount1, americanAccount, BigDecimal.valueOf(0.02), BigDecimal.valueOf(0.05));
+        InternationalTransfer iTransfer2 = new InternationalTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T18:13:12.00"), TransactionStatus.COMPLETED,americanAccount, bAccount1, BigDecimal.valueOf(0.02), BigDecimal.valueOf(0.05));
+
+        internationalTransferRepository.saveAll(Arrays.asList(iTransfer1, iTransfer2));
 
     }
 

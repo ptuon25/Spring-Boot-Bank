@@ -2,9 +2,8 @@ package com.tuon.tbank.entity.transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.Account;
-import com.tuon.tbank.entity.transaction.endpoint.TransferEndpoint;
 import com.tuon.tbank.entity.transaction.external.ExternalAccount;
-import com.tuon.tbank.enums.TransactionStatus;
+import com.tuon.tbank.enums.transaction.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,13 +21,13 @@ import java.time.LocalDateTime;
 public class Transfer extends Transaction {
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "source_account_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_account_id")
     private Account sourceAccount;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "destination_account_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_account_id")
     private Account destinationAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)

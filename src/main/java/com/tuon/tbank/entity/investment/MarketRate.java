@@ -1,15 +1,13 @@
 package com.tuon.tbank.entity.investment;
 
-import com.tuon.tbank.enums.MarketRateType;
+import com.tuon.tbank.enums.investment.MarketRateType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Represents a market rate recorded for a reference month.
@@ -17,7 +15,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name = "market_rates")
+@Table(name = "market-rates")
 public class MarketRate {
 
     @Id

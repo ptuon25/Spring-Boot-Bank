@@ -2,7 +2,7 @@ package com.tuon.tbank.entity.transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.Account;
-import com.tuon.tbank.enums.TransactionStatus;
+import com.tuon.tbank.enums.transaction.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

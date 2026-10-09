@@ -1,8 +1,8 @@
 package com.tuon.tbank.entity.investment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.tuon.tbank.enums.InvestmentRateType;
-import com.tuon.tbank.enums.InvestmentStatus;
+import com.tuon.tbank.enums.investment.InvestmentRateType;
+import com.tuon.tbank.enums.investment.InvestmentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.BusinessAccount;
 import com.tuon.tbank.entity.audit.AuditRecord;
 import com.tuon.tbank.entity.person.Person;
-import com.tuon.tbank.enums.CompanyStatus;
+import com.tuon.tbank.enums.company.CompanyStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,10 +38,10 @@ public class Company {
 
     private String registrationNumber;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate foundationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate affiliationDate;
 
     @Enumerated(EnumType.STRING)

@@ -1,13 +1,12 @@
 package com.tuon.tbank.entity.audit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.Account;
 import com.tuon.tbank.entity.company.Company;
 import com.tuon.tbank.entity.person.Person;
 import com.tuon.tbank.entity.transaction.Transaction;
-import com.tuon.tbank.enums.AuditAction;
-import com.tuon.tbank.enums.AuditStatus;
+import com.tuon.tbank.enums.audit.AuditAction;
+import com.tuon.tbank.enums.audit.AuditStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

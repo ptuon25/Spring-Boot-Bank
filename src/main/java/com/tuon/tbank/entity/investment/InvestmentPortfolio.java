@@ -1,7 +1,7 @@
 package com.tuon.tbank.entity.investment;
 
 import com.tuon.tbank.entity.account.Account;
-import com.tuon.tbank.enums.InvestmentType;
+import com.tuon.tbank.enums.investment.InvestmentType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

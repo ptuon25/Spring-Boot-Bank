@@ -1,9 +1,14 @@
 package com.tuon.tbank.entity.transaction;
 
+import com.tuon.tbank.entity.account.Account;
+import com.tuon.tbank.enums.transaction.TransactionStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * Represents a Pix transfer transaction.
@@ -22,4 +27,15 @@ public class PixTransfer extends Transfer{
     public PixTransfer(String pixKey) {
         this.pixKey = pixKey;
     }
+
+    public PixTransfer(Account sourceAccount, Account destinationAccount, String pixKey) {
+        super(sourceAccount, destinationAccount);
+        this.pixKey = pixKey;
+    }
+
+    public PixTransfer(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account sourceAccount, Account destinationAccount, String pixKey) {
+        super(id, amount, timestamp, status, sourceAccount, destinationAccount);
+        this.pixKey = pixKey;
+    }
+
 }
