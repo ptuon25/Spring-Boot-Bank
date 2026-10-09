@@ -7,6 +7,7 @@ import com.tuon.tbank.entity.transaction.Transaction;
 import com.tuon.tbank.enums.transaction.ReversalReason;
 import com.tuon.tbank.enums.transaction.ReversalStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +22,7 @@ import java.util.Objects;
 @Table(name = "transaction_reversals")
 public class TransactionReversal {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -62,6 +64,16 @@ public class TransactionReversal {
         this.reviewedBy = reviewedBy;
         this.status = status;
         this.reason = reason;
+    }
+
+    public void approve(Employee reviewer){
+        this.reviewedBy = reviewer;
+        this.status = ReversalStatus.APPROVED;
+    }
+
+    public void reprove(Employee reviewer){
+        this.reviewedBy = reviewer;
+        this.status = ReversalStatus.REJECTED;
     }
 
     @Override

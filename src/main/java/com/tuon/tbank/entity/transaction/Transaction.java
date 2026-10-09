@@ -6,6 +6,7 @@ import com.tuon.tbank.entity.audit.AuditRecord;
 import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal;
 import com.tuon.tbank.enums.transaction.TransactionStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,10 +26,12 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Transaction {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter(AccessLevel.NONE)
     private BigDecimal amount;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
@@ -37,12 +40,15 @@ public abstract class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "originalTransaction")
     private Set<TransactionReversal> originalTransactionReversals = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "reversalTransaction")
     private Set<TransactionReversal> reversalTransactionReversals = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @JsonIgnore
     @OneToMany(mappedBy = "transaction")
     private Set<AuditRecord> auditRecords = new HashSet<>();

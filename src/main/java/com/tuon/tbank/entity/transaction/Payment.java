@@ -38,12 +38,6 @@ public class Payment extends Transaction{
         super();
     }
 
-    public Payment(Account sourceAccount, PaymentAccount destination, PaymentType paymentType) {
-        this.sourceAccount = sourceAccount;
-        this.destination = destination;
-        this.paymentType = paymentType;
-    }
-
     public Payment(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account sourceAccount, PaymentAccount destination, PaymentType paymentType) {
         super(id, amount, timestamp, status);
         this.sourceAccount = sourceAccount;

@@ -2,6 +2,7 @@ package com.tuon.tbank.entity.investment;
 
 import com.tuon.tbank.enums.investment.MarketRateType;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,7 @@ import java.util.Objects;
 @Table(name = "market-rates")
 public class MarketRate {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

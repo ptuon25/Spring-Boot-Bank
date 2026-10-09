@@ -26,6 +26,7 @@ public class InvestmentMonthlyReturn {
     private Investment investment;
 
     private YearMonth referenceMonth;
+
     private BigDecimal amount;
 
     public InvestmentMonthlyReturn(){}

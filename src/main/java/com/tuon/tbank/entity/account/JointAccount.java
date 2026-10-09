@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.person.Client;
 import com.tuon.tbank.enums.account.AccountStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ import java.util.List;
 @Setter
 public class JointAccount extends Account {
 
+    @Setter(AccessLevel.NONE)
     @JsonIgnore
     @ManyToMany
     @JoinTable(name = "joint_account_owner", joinColumns = @JoinColumn(name = "account_id"),
@@ -28,10 +30,6 @@ public class JointAccount extends Account {
 
     public JointAccount(){
         super();
-    }
-
-    public JointAccount(List<Client> owners) {
-        this.owners = owners;
     }
 
     public JointAccount(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status, List<Client> owners) {

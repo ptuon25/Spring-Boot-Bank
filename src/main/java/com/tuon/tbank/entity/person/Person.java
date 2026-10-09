@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.audit.AuditRecord;
 import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -24,6 +25,7 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,23 +37,33 @@ public abstract class Person {
 
     private String document;
     private String email;
+
+    @Setter(AccessLevel.NONE)
     private String passwordHash;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "requestedBy", cascade = CascadeType.DETACH, orphanRemoval = true)
     private Set<TransactionReversal> transactionReversals = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @JsonIgnore
     @OneToMany(mappedBy = "performedBy")
     private Set<AuditRecord> auditRecordsPerformedBy = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @JsonIgnore
     @OneToMany(mappedBy = "person")
     private Set<AuditRecord> auditRecordsPerson = new HashSet<>();
 
     public Person(){}
 
-    public Person(Long id) {
+    public Person(Long id, String name, LocalDate birthDate, String document, String email, String passwordHash) {
         this.id = id;
+        this.name = name;
+        this.birthDate = birthDate;
+        this.document = document;
+        this.email = email;
+        this.passwordHash = passwordHash;
     }
 
     @Override

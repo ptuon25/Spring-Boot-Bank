@@ -28,10 +28,6 @@ public class Withdrawal extends Transaction {
         super();
     }
 
-    public Withdrawal(Account sourceAccount) {
-        this.sourceAccount = sourceAccount;
-    }
-
     public Withdrawal(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account sourceAccount) {
         super(id, amount, timestamp, status);
         this.sourceAccount = sourceAccount;

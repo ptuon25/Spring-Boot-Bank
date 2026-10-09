@@ -28,10 +28,6 @@ public class Deposit extends Transaction {
         super();
     }
 
-    public Deposit(Account destinationAccount) {
-        this.destinationAccount = destinationAccount;
-    }
-
     public Deposit(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account destinationAccount) {
         super(id, amount, timestamp, status);
         this.destinationAccount = destinationAccount;

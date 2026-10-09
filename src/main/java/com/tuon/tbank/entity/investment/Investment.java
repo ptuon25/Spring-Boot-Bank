@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tuon.tbank.enums.investment.InvestmentRateType;
 import com.tuon.tbank.enums.investment.InvestmentStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,7 @@ import java.util.Set;
 @Table(name = "investments")
 public class Investment {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,7 +33,11 @@ public class Investment {
     private InvestmentPortfolio portfolio;
 
     private BigDecimal investedAmount;
+
+    @Setter(AccessLevel.NONE)
     private BigDecimal currentValue;
+
+    @Setter(AccessLevel.NONE)
     private BigDecimal interestRate;
 
     @Enumerated(EnumType.STRING)
@@ -46,9 +52,11 @@ public class Investment {
     @Enumerated(EnumType.STRING)
     private InvestmentStatus status;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "investment")
     private Set<InvestmentMonthlyReturn> monthlyReturns = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "investment")
     private Set<InvestmentTransaction> investmentTransactions = new HashSet<>();
 
@@ -65,6 +73,14 @@ public class Investment {
         this.investmentDate = investmentDate;
         this.maturityDate = maturityDate;
         this.status = status;
+    }
+
+    public void updateCurrentValue(BigDecimal newValue){
+        this.currentValue = newValue;
+    }
+
+    public void redeem(){
+        this.status = InvestmentStatus.REDEEMED;
     }
 
     @Override

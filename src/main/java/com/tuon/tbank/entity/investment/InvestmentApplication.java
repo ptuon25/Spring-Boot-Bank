@@ -3,6 +3,7 @@ package com.tuon.tbank.entity.investment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.account.Account;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,7 @@ public class InvestmentApplication extends InvestmentTransaction {
     @JoinColumn(name = "source_account_id", nullable = false)
     private Account sourceAccount;
 
+    @Setter(AccessLevel.NONE)
     private BigDecimal amount;
 
     public InvestmentApplication() {

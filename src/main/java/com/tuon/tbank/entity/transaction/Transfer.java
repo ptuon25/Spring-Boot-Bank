@@ -42,11 +42,6 @@ public class Transfer extends Transaction {
         super();
     }
 
-    public Transfer(Account sourceAccount, Account destinationAccount) {
-        this.sourceAccount = sourceAccount;
-        this.destinationAccount = destinationAccount;
-    }
-
     public Transfer(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account sourceAccount, Account destinationAccount) {
         super(id, amount, timestamp, status);
         this.sourceAccount = sourceAccount;

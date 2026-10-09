@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tuon.tbank.entity.transaction.Transfer;
 import com.tuon.tbank.entity.transaction.endpoint.TransferEndpoint;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,7 @@ import java.util.Set;
 @Table(name = "external_accounts")
 public class ExternalAccount implements TransferEndpoint {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
@@ -33,9 +35,11 @@ public class ExternalAccount implements TransferEndpoint {
     @JoinColumn(name = "external_bank_id", nullable = false)
     private ExternalBank externalBank;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "sourceExternalAccount")
     private Set<Transfer> sourceTransfers;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "destinationExternalAccount")
     private Set<Transfer> destinationTransfers;
 

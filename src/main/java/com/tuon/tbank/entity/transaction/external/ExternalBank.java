@@ -1,6 +1,7 @@
 package com.tuon.tbank.entity.transaction.external;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 @Table(name = "external_banks")
 public class ExternalBank {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +28,7 @@ public class ExternalBank {
     private String currency;
     private String swiftCode;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "externalBank")
     private Set<ExternalAccount> externalAccounts = new HashSet<>();
 

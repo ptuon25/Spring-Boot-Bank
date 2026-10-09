@@ -5,6 +5,7 @@ import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal
 import com.tuon.tbank.enums.person.EmployeeRole;
 import com.tuon.tbank.enums.person.EmployeeStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +34,7 @@ public class Employee extends Person {
 
     private BigDecimal salary;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "reviewedBy", cascade = CascadeType.DETACH, orphanRemoval = true)
     private Set<TransactionReversal> transactionReversals = new HashSet<>();
 

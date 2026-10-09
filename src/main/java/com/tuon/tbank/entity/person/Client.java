@@ -6,6 +6,7 @@ import com.tuon.tbank.entity.account.JointAccount;
 import com.tuon.tbank.entity.account.SavingsAccount;
 import com.tuon.tbank.enums.person.ClientStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,12 +29,15 @@ public class Client extends Person {
     @Enumerated(EnumType.STRING)
     private ClientStatus status;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "owner")
     private Set<CheckingAccount> checkingAccounts = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @ManyToMany(mappedBy = "owners")
     private Set<JointAccount> jointAccounts = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "owner")
     private Set<SavingsAccount> savingsAccounts = new HashSet<>();
 

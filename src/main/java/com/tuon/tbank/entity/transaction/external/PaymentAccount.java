@@ -2,6 +2,7 @@ package com.tuon.tbank.entity.transaction.external;
 
 import com.tuon.tbank.entity.transaction.Payment;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,12 +19,14 @@ import java.util.Set;
 @Table(name = "payment_account")
 public class PaymentAccount {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "destination")
     private Set<Payment> payments = new HashSet<>();
 

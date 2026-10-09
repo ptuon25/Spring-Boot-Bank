@@ -3,6 +3,7 @@ package com.tuon.tbank.entity.investment;
 import com.tuon.tbank.entity.account.Account;
 import com.tuon.tbank.enums.investment.InvestmentType;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,7 @@ import java.util.Set;
 @Table(name = "investment_portfolio")
 public class InvestmentPortfolio {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,8 +32,18 @@ public class InvestmentPortfolio {
     @Enumerated(EnumType.STRING)
     private InvestmentType type;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "portfolio")
     private Set<Investment> investments = new HashSet<>();
+
+    public InvestmentPortfolio(){ }
+
+    public InvestmentPortfolio(Long id, Account account, InvestmentType type, Set<Investment> investments) {
+        this.id = id;
+        this.account = account;
+        this.type = type;
+        this.investments = investments;
+    }
 
     @Override
     public boolean equals(Object o) {

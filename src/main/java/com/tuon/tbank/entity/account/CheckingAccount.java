@@ -28,10 +28,6 @@ public class CheckingAccount extends Account {
         super();
     }
 
-    public CheckingAccount(Client owner) {
-        this.owner = owner;
-    }
-
     public CheckingAccount(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status, Client owner) {
         super(id, accountNumber, balance, openingDate, status);
         this.owner = owner;

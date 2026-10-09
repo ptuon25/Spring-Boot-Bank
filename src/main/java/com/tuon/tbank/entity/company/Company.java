@@ -7,6 +7,7 @@ import com.tuon.tbank.entity.audit.AuditRecord;
 import com.tuon.tbank.entity.person.Person;
 import com.tuon.tbank.enums.company.CompanyStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -25,6 +26,7 @@ import java.util.Set;
 @Setter
 public class Company {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,9 +49,11 @@ public class Company {
     @Enumerated(EnumType.STRING)
     private CompanyStatus status;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "owner")
     private Set<BusinessAccount> businessAccounts = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @JsonIgnore
     @OneToMany(mappedBy = "company")
     private Set<AuditRecord> auditRecords = new HashSet<>();

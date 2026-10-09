@@ -24,18 +24,8 @@ public class PixTransfer extends Transfer{
         super();
     }
 
-    public PixTransfer(String pixKey) {
-        this.pixKey = pixKey;
-    }
-
-    public PixTransfer(Account sourceAccount, Account destinationAccount, String pixKey) {
-        super(sourceAccount, destinationAccount);
-        this.pixKey = pixKey;
-    }
-
     public PixTransfer(Long id, BigDecimal amount, LocalDateTime timestamp, TransactionStatus status, Account sourceAccount, Account destinationAccount, String pixKey) {
         super(id, amount, timestamp, status, sourceAccount, destinationAccount);
         this.pixKey = pixKey;
     }
-
 }

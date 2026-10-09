@@ -30,11 +30,6 @@ public class SavingsAccount extends Account {
         super();
     }
 
-    public SavingsAccount(Client owner, BigDecimal interestRate) {
-        this.owner = owner;
-        this.interestRate = interestRate;
-    }
-
     public SavingsAccount(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status, Client owner, BigDecimal interestRate) {
         super(id, accountNumber, balance, openingDate, status);
         this.owner = owner;
