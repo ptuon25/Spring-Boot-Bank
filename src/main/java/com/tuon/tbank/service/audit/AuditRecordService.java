@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.audit;
 
 import com.tuon.tbank.entity.audit.AuditRecord;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.audit.AuditRecordRepository;
 import org.springframework.stereotype.Service;
 

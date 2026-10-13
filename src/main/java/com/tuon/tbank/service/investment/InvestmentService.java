@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.investment;
 
 import com.tuon.tbank.entity.investment.Investment;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.investment.InvestmentRepository;
 import org.springframework.stereotype.Service;
 

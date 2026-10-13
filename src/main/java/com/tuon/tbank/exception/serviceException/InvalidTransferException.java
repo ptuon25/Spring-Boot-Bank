@@ -1,4 +1,4 @@
-package com.tuon.tbank.exception;
+package com.tuon.tbank.exception.serviceException;
 
 import java.io.Serial;
 

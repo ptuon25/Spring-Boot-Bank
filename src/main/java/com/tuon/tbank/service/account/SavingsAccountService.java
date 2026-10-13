@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.account;
 
 import com.tuon.tbank.entity.account.SavingsAccount;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.account.SavingsAccountRepository;
 import org.springframework.stereotype.Service;
 

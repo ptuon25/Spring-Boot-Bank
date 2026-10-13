@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.transaction;
 
 import com.tuon.tbank.entity.transaction.reversalTransaction.TransactionReversal;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.transaction.TransactionReversalRepository;
 import org.springframework.stereotype.Service;
 

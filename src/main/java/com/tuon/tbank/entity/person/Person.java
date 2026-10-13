@@ -36,9 +36,12 @@ public abstract class Person {
     private LocalDate birthDate;
 
     private String document;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Setter(AccessLevel.NONE)
+    //@Setter(AccessLevel.NONE) -> create method to set new password
+    @JsonIgnore
     private String passwordHash;
 
     @Setter(AccessLevel.NONE)

@@ -44,7 +44,7 @@ public class Employee extends Person {
 
     public Employee(String name, LocalDate birthDate, String document, String email, String passwordHash,
                     EmployeeRole role, LocalDate admissionDate, EmployeeStatus status, BigDecimal salary) {
-        super(null);
+        super();
         this.setName(name);
         this.setBirthDate(birthDate);
         this.setDocument(document);

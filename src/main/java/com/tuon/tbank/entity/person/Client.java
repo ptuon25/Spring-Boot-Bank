@@ -46,7 +46,7 @@ public class Client extends Person {
     }
 
     public Client(String name, LocalDate birthDate, String document, String email, String passwordHash, LocalDate affiliationDate, ClientStatus status) {
-        super(null);
+        super();
         this.setName(name);
         this.setBirthDate(birthDate);
         this.setDocument(document);

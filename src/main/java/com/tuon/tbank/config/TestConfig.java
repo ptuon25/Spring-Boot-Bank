@@ -26,6 +26,7 @@ import com.tuon.tbank.repository.company.CompanyRepository;
 import com.tuon.tbank.repository.person.ClientRepository;
 import com.tuon.tbank.repository.person.EmployeeRepository;
 import com.tuon.tbank.repository.transaction.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,9 @@ public class TestConfig implements CommandLineRunner {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -87,22 +91,35 @@ public class TestConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         Client client1 = new Client("John Doe", LocalDate.of(1990, 10, 15),
-                "1234567890", "john_doe@hotmail.com", "hashed_password_1", LocalDate.of(2020, 11, 3)
+                "1234567890", "john_doe@hotmail.com", passwordEncoder.encode("client-test-password"),
+                LocalDate.of(2020, 11, 3)
                 , ClientStatus.ACTIVE);
         Client client2 = new Client("Jane Smith", LocalDate.of(1984, 7, 12),
-                "0987654321", "jane_smith@gmail.com", "hashed_password_2", LocalDate.of(2021, 4, 15),
+                "0987654321", "jane_smith@gmail.com", passwordEncoder.encode("client-two-password"),
+                LocalDate.of(2021, 4, 15),
                 ClientStatus.ACTIVE);
+        Client blockedClient = new Client("Blocked Client", LocalDate.of(1980, 1, 1),
+                "1234509876", "blocked_client@tbank.com", passwordEncoder.encode("blocked-test-password"),
+                LocalDate.of(2022, 1, 1), ClientStatus.BLOCKED);
 
-        clientRepository.saveAll(Arrays.asList(client1, client2));
+        clientRepository.saveAll(Arrays.asList(client1, client2, blockedClient));
 
         Employee employee1 = new Employee("Alice Johnson", LocalDate.of(1978, 12, 10),
-                "1112223330", "alice_johnson@tbank.com", "password01", EmployeeRole.MANAGER,
+                "1112223330", "alice_johnson@tbank.com", passwordEncoder.encode("manager-test-password"),
+                EmployeeRole.MANAGER,
                 LocalDate.of(2015, 3, 20), EmployeeStatus.ACTIVE, BigDecimal.valueOf(8500.00));
         Employee employee2 = new Employee("Bob Williams", LocalDate.of(1985, 5, 22),
-                "4445556660", "bob_williams@tbank.com", "password02", EmployeeRole.ASSOCIATE,
+                "4445556660", "bob_williams@tbank.com", passwordEncoder.encode("associate-test-password"),
+                EmployeeRole.ASSOCIATE,
                 LocalDate.of(2018, 8, 15), EmployeeStatus.ACTIVE, BigDecimal.valueOf(6500.00));
+        Employee admin = new Employee("Test Administrator", LocalDate.of(1980, 1, 1),
+                "7778889990", "admin@tbank.test", passwordEncoder.encode("admin-test-password"),
+                EmployeeRole.ADMIN, LocalDate.of(2010, 1, 1), EmployeeStatus.ACTIVE, BigDecimal.valueOf(10000.00));
+        Employee onLeaveEmployee = new Employee("Employee On Leave", LocalDate.of(1982, 1, 1),
+                "5556667770", "on_leave@tbank.test", passwordEncoder.encode("leave-test-password"),
+                EmployeeRole.ASSOCIATE, LocalDate.of(2012, 1, 1), EmployeeStatus.ON_LEAVE, BigDecimal.valueOf(5000.00));
 
-        employeeRepository.saveAll(Arrays.asList(employee1, employee2));
+        employeeRepository.saveAll(Arrays.asList(employee1, employee2, admin, onLeaveEmployee));
 
         Company company1 = new Company(null, "Tech Solutions Ltd", "Tech Solutions", client1, "123.456.789-0",
                 LocalDate.of(1995,2,20), LocalDate.of(2019,3,14),

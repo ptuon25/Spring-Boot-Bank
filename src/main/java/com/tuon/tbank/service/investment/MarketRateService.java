@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.investment;
 
 import com.tuon.tbank.entity.investment.MarketRate;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.investment.MarketRateRepository;
 import org.springframework.stereotype.Service;
 

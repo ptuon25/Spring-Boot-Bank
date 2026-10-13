@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.transaction;
 
 import com.tuon.tbank.entity.transaction.external.PaymentAccount;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.transaction.PaymentAccountRepository;
 import org.springframework.stereotype.Service;
 

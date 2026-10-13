@@ -1,7 +1,7 @@
 package com.tuon.tbank.service.transaction;
 
 import com.tuon.tbank.entity.transaction.Transfer;
-import com.tuon.tbank.exception.ResourceNotFoundException;
+import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.transaction.TransferRepository;
 import org.springframework.stereotype.Service;
 
