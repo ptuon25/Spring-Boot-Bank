@@ -56,9 +56,12 @@ public class SecurityConfig {
                         auth.requestMatchers("/h2-console/**").permitAll();
                     }
                     auth.requestMatchers(HttpMethod.POST, "/auth/login", "/clients").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/clients/deleted")
+                            .hasAuthority("ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/clients/search/**", "/clients")
+                            .hasAnyAuthority("ROLE_ASSOCIATE", "ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers(HttpMethod.GET, "/clients/{id}")
                             .hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
-                            .requestMatchers(HttpMethod.GET, "/clients").hasAuthority("ROLE_ADMIN")
                             .requestMatchers("/clients/**").hasAuthority("ROLE_ADMIN")
                             .requestMatchers("/employees/**", "/audits/**").hasAuthority("ROLE_ADMIN")
                             .requestMatchers(HttpMethod.POST, "/business-accounts", "/business-accounts/**")

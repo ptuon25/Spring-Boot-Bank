@@ -58,6 +58,8 @@ public abstract class Person {
     @OneToMany(mappedBy = "person")
     private Set<AuditRecord> auditRecordsPerson = new HashSet<>();
 
+    private boolean deleted = false;
+
     public Person(){}
 
     public Person(Long id, String name, LocalDate birthDate, String document, String email, String passwordHash) {
