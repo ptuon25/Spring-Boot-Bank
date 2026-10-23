@@ -15,6 +15,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Creates signed JWT access tokens for authenticated bank users.
+ */
 @Service
 public class JwtService {
 
@@ -23,6 +26,15 @@ public class JwtService {
     private final String issuer;
     private final Clock clock;
 
+    /**
+     * Creates a service that issues signed access tokens.
+     *
+     * @param jwtEncoder the encoder used to sign tokens
+     * @param expiration the token lifetime, which must be positive
+     * @param issuer the issuer claim included in each token
+     * @param clock the clock used to determine token issue and expiration times
+     * @throws IllegalArgumentException if the token lifetime is zero or negative
+     */
     public JwtService(JwtEncoder jwtEncoder,
                      @Value("${app.jwt.expiration}") Duration expiration,
                      @Value("${app.jwt.issuer}") String issuer,
@@ -36,6 +48,12 @@ public class JwtService {
         this.clock = clock;
     }
 
+    /**
+     * Issues a bearer token for the supplied user, including its identity and authorities.
+     *
+     * @param user the authenticated user's details
+     * @return the access token response with its token type and lifetime in seconds
+     */
     public LoginResponse issueToken(BankUserDetails user) {
         Instant issuedAt = clock.instant();
         List<String> authorities = user.getAuthorities().stream()

@@ -8,6 +8,15 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+/**
+ * Contains the client data submitted for registration.
+ *
+ * @param name the non-blank client name
+ * @param birthDate the non-null date of birth, which must not be in the future
+ * @param document the non-blank identification document
+ * @param email the non-blank email address, which must have a valid email format
+ * @param password the non-blank password, between 12 and 72 characters
+ */
 public record ClientRegistrationRequest(
         @NotBlank String name,
         @NotNull @PastOrPresent LocalDate birthDate,

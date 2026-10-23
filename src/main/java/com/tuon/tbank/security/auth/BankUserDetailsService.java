@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Loads client and employee accounts for Spring Security authentication.
+ */
 @Service
 public class BankUserDetailsService implements UserDetailsService {
 
@@ -22,14 +25,31 @@ public class BankUserDetailsService implements UserDetailsService {
     private final ClientRepository clientRepository;
     private final EmployeeRepository employeeRepository;
 
+    /**
+     * Creates the user-details service with the client and employee repositories.
+     *
+     * @param clientRepository the repository used to look up non-deleted clients
+     * @param employeeRepository the repository used to look up employees
+     */
     public BankUserDetailsService(ClientRepository clientRepository, EmployeeRepository employeeRepository) {
         this.clientRepository = clientRepository;
         this.employeeRepository = employeeRepository;
     }
 
+    /**
+     * Loads a client or employee by email and maps the account data to Spring Security user details.
+     *
+     * <p>The email must identify exactly one account. Client accounts must have a non-blank password hash;
+     * employee accounts must also have a non-null role. Only accounts with ACTIVE status are enabled.</p>
+     *
+     * @param email the email address used to look up the account
+     * @return the corresponding Spring Security user details
+     * @throws UsernameNotFoundException if no unique account is found or its required authentication
+     *                                    data is missing
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<Client> client = clientRepository.findByEmail(email);
+        Optional<Client> client = clientRepository.findByEmailAndDeletedFalse(email);
         Optional<Employee> employee = employeeRepository.findByEmail(email);
 
         if (client.isPresent() == employee.isPresent()) {

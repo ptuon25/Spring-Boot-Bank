@@ -1,4 +1,4 @@
-package com.tuon.tbank;
+package com.tuon.tbank.security;
 
 import com.tuon.tbank.repository.person.ClientRepository;
 import com.tuon.tbank.enums.person.ClientStatus;

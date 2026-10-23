@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Supplies Spring Security with an account's identity, credentials, authority, and enabled state.
+ */
 public final class BankUserDetails implements UserDetails {
 
     private final Long id;
@@ -17,6 +20,16 @@ public final class BankUserDetails implements UserDetails {
     private final String authority;
     private final boolean enabled;
 
+    /**
+     * Creates user details for a client or employee account.
+     *
+     * @param id the account identifier
+     * @param email the account email address used as the username
+     * @param passwordHash the stored password hash
+     * @param identityType the account identity type
+     * @param authority the granted authority
+     * @param enabled whether the account is enabled
+     */
     public BankUserDetails(Long id, String email, String passwordHash, UserIdentityType identityType,
                            String authority, boolean enabled) {
         this.id = id;

@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.io.Serial;
 import java.time.Instant;
 
+/**
+ * Represents the standard error details returned by the API.
+ */
 @Getter
 @Setter
 public class StandardError {
@@ -22,8 +25,20 @@ public class StandardError {
     private String message;
     private String path;
 
+    /**
+     * Creates an error response with no fields initialized.
+     */
     public StandardError(){ }
 
+    /**
+     * Creates an error response with all fields initialized.
+     *
+     * @param timestamp the time at which the error occurred
+     * @param status the HTTP status code
+     * @param error the error description
+     * @param message the error detail message
+     * @param path the request URI
+     */
     public StandardError(Instant timestamp, Integer status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;

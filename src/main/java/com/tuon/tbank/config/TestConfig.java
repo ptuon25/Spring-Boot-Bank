@@ -87,6 +87,12 @@ public class TestConfig implements CommandLineRunner {
     @Autowired
     private InternationalTransferRepository internationalTransferRepository;
 
+    /**
+     * Persists sample clients, employees, accounts, banks, and transactions for the test profile.
+     *
+     * @param args command-line arguments supplied by Spring Boot
+     * @throws Exception if sample data initialization fails
+     */
     @Override
     public void run(String... args) throws Exception {
 
@@ -122,27 +128,27 @@ public class TestConfig implements CommandLineRunner {
         employeeRepository.saveAll(Arrays.asList(employee1, employee2, admin, onLeaveEmployee));
 
         Company company1 = new Company(null, "Tech Solutions Ltd", "Tech Solutions", client1, "123.456.789-0",
-                LocalDate.of(1995,2,20), LocalDate.of(2019,3,14),
+                LocalDate.of(1995, 2, 20), LocalDate.of(2019, 3, 14),
                 CompanyStatus.ACTIVE);
         Company company2 = new Company(null, "Green Energy Inc", "Green Energy", client2, "987.654.321-0",
-                LocalDate.of(2005,6,10), LocalDate.of(2020,3,14),
+                LocalDate.of(2005, 6, 10), LocalDate.of(2020, 3, 14),
                 CompanyStatus.ACTIVE);
 
         companyRepository.saveAll(Arrays.asList(company1, company2));
 
         BusinessAccount bAccount1 = new BusinessAccount(null, "000001", BigDecimal.valueOf(10000.00),
-                LocalDate.of(2023,1,15), AccountStatus.ACTIVE, company1);
+                LocalDate.of(2023, 1, 15), AccountStatus.ACTIVE, company1);
         BusinessAccount bAccount2 = new BusinessAccount(null, "000002", BigDecimal.valueOf(20000.00),
-                LocalDate.of(2024,12,1), AccountStatus.ACTIVE, company2);
+                LocalDate.of(2024, 12, 1), AccountStatus.ACTIVE, company2);
 
         CheckingAccount cAccount = new CheckingAccount(null, "000003", BigDecimal.valueOf(5000.00),
-                LocalDate.of(2022,5,10), AccountStatus.ACTIVE, client1);
+                LocalDate.of(2022, 5, 10), AccountStatus.ACTIVE, client1);
 
         JointAccount jAccount = new JointAccount(null, "000004", BigDecimal.valueOf(2500.00),
-                LocalDate.of(2024,2,1), AccountStatus.ACTIVE, Arrays.asList(client1, client2));
+                LocalDate.of(2024, 2, 1), AccountStatus.ACTIVE, Arrays.asList(client1, client2));
 
         SavingsAccount sAccount = new SavingsAccount(null, "000005", BigDecimal.valueOf(1500.00),
-                LocalDate.of(2025,2,1), AccountStatus.ACTIVE, client2, BigDecimal.valueOf(0.03));
+                LocalDate.of(2025, 2, 1), AccountStatus.ACTIVE, client2, BigDecimal.valueOf(0.03));
 
         businessAccountRepository.saveAll(Arrays.asList(bAccount1, bAccount2));
         checkingAccountRepository.save(cAccount);
@@ -162,36 +168,6 @@ public class TestConfig implements CommandLineRunner {
         PaymentAccount paymentAccount = new PaymentAccount(null, "Payment Account");
 
         paymentAccountRepository.save(paymentAccount);
-
-        Deposit deposit1 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:31:15.00"), TransactionStatus.COMPLETED,cAccount);
-        Deposit deposit2 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:38:15.00"), TransactionStatus.COMPLETED,bAccount1);
-        Deposit deposit3 = new Deposit(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T17:38:15.00"), TransactionStatus.COMPLETED,bAccount2);
-
-        depositRepository.saveAll(Arrays.asList(deposit1, deposit2, deposit3));
-
-        Withdrawal withdrawal1 = new Withdrawal(null, BigDecimal.valueOf(50.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,cAccount);
-        Withdrawal withdrawal2 = new Withdrawal(null, BigDecimal.valueOf(200.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,jAccount);
-        Withdrawal withdrawal3 = new Withdrawal(null, BigDecimal.valueOf(10.00), LocalDateTime.parse("2026-10-08T17:34:10.00"),TransactionStatus.COMPLETED,sAccount);
-
-        withdrawalRepository.saveAll(Arrays.asList(withdrawal1, withdrawal2, withdrawal3));
-
-        Transfer transfer = new Transfer(null, BigDecimal.valueOf(150.00),LocalDateTime.parse("2026-10-08T17:42:14"), TransactionStatus.COMPLETED, bAccount1, bAccount2);
-
-        transferRepository.save(transfer);
-
-        PixTransfer pix1 = new PixTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T17:47:45.00"), TransactionStatus.COMPLETED, cAccount, sAccount, "0000001T000001SP");
-        PixTransfer pix2 = new PixTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T17:48:45.00"), TransactionStatus.COMPLETED, sAccount, jAccount, "0000001T000001SP");
-
-        pixTransferRepository.saveAll(Arrays.asList(pix1,pix2));
-
-        Payment payment = new Payment(null, BigDecimal.valueOf(200.00), LocalDateTime.parse("2026-10-08T17:51:12.00"), TransactionStatus.COMPLETED, bAccount1, paymentAccount, PaymentType.TICKET);
-
-        paymentRepository.save(payment);
-
-        InternationalTransfer iTransfer1 = new InternationalTransfer(null, BigDecimal.valueOf(250.00), LocalDateTime.parse("2026-10-08T18:07:12.00"), TransactionStatus.COMPLETED,bAccount1, americanAccount, BigDecimal.valueOf(0.02), BigDecimal.valueOf(0.05));
-        InternationalTransfer iTransfer2 = new InternationalTransfer(null, BigDecimal.valueOf(100.00), LocalDateTime.parse("2026-10-08T18:13:12.00"), TransactionStatus.COMPLETED,americanAccount, bAccount1, BigDecimal.valueOf(0.02), BigDecimal.valueOf(0.05));
-
-        internationalTransferRepository.saveAll(Arrays.asList(iTransfer1, iTransfer2));
 
     }
 

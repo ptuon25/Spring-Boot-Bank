@@ -30,6 +30,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.Clock;
 import java.util.Base64;
 
+/**
+ * Configures HTTP security, password encoding, JWT handling, and authentication beans.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -43,6 +46,15 @@ public class SecurityConfig {
     @Value("${app.security.h2-console-enabled:false}")
     private boolean h2ConsoleEnabled;
 
+    /**
+     * Configures the stateless HTTP security filter chain, including request authorization
+     * and JWT resource-server support.
+     *
+     * @param http the HTTP security configuration
+     * @param jwtAuthenticationConverter the converter used to derive authorities from JWTs
+     * @return the configured security filter chain
+     * @throws Exception if the security filter chain cannot be built
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                   JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
@@ -57,12 +69,14 @@ public class SecurityConfig {
                     }
                     auth.requestMatchers(HttpMethod.POST, "/auth/login", "/clients").permitAll()
                             .requestMatchers(HttpMethod.GET, "/clients/deleted")
-                            .hasAuthority("ROLE_ADMIN")
+                            .hasAnyAuthority("ROLE_MANAGER" ,"ROLE_ADMIN")
                             .requestMatchers(HttpMethod.GET, "/clients/search/**", "/clients")
                             .hasAnyAuthority("ROLE_ASSOCIATE", "ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers(HttpMethod.GET, "/clients/{id}")
-                            .hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
-                            .requestMatchers("/clients/**").hasAuthority("ROLE_ADMIN")
+                            .hasAnyAuthority("ROLE_CLIENT", "ROLE_MANAGER",  "ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.PATCH, "/clients/{id}/password")
+                            .hasAuthority("ROLE_CLIENT")
+                            .requestMatchers("/clients/**").hasAnyAuthority("ROLE_MANAGER","ROLE_ADMIN")
                             .requestMatchers("/employees/**", "/audits/**").hasAuthority("ROLE_ADMIN")
                             .requestMatchers(HttpMethod.POST, "/business-accounts", "/business-accounts/**")
                             .hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN")
@@ -81,11 +95,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Creates a JWT encoder using the configured signing key.
+     *
+     * @param jwtSigningKey the key used to sign JWTs
+     * @return a JWT encoder
+     */
     @Bean
     public JwtEncoder jwtEncoder(SecretKey jwtSigningKey) {
         return new NimbusJwtEncoder(new ImmutableSecret<>(jwtSigningKey));
     }
 
+    /**
+     * Creates a JWT decoder that uses HS256 and validates the configured issuer.
+     *
+     * @param jwtSigningKey the key used to verify JWT signatures
+     * @return a JWT decoder
+     */
     @Bean
     public JwtDecoder jwtDecoder(SecretKey jwtSigningKey) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(jwtSigningKey)
@@ -95,6 +121,12 @@ public class SecurityConfig {
         return decoder;
     }
 
+    /**
+     * Decodes and validates the configured Base64-encoded JWT signing key.
+     *
+     * @return the HMAC key used for JWT signing and verification
+     * @throws IllegalStateException if the secret is missing, invalid Base64, or shorter than 32 bytes
+     */
     @Bean
     public SecretKey jwtSigningKey() {
         if (encodedJwtSecret == null || encodedJwtSecret.isBlank()) {
@@ -112,21 +144,43 @@ public class SecurityConfig {
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
 
+    /**
+     * Creates the password encoder used by the application.
+     *
+     * @return a BCrypt password encoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Provides a UTC system clock.
+     *
+     * @return the UTC system clock
+     */
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
     }
 
+    /**
+     * Obtains the authentication manager configured by Spring Security.
+     *
+     * @param configuration the authentication configuration
+     * @return the configured authentication manager
+     * @throws Exception if the authentication manager cannot be obtained
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
+    /**
+     * Configures JWT authorities to be read from the {@code authorities} claim without a prefix.
+     *
+     * @return the JWT authentication converter
+     */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
