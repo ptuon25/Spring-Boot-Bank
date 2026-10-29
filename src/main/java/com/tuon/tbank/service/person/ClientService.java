@@ -375,6 +375,9 @@ public class ClientService {
         if (client.getBirthDate().isAfter(LocalDate.now())) {
             throw new BusinessException("Client birthdate cannot be in the future");
         }
+        if (client.getBirthDate().isAfter(LocalDate.now().minusYears(18))) {
+            throw new BusinessException("Client must be at least 18 years old");
+        }
         if (client.getDocument() == null || client.getDocument().isBlank()) {
             throw new BusinessException("Client document cannot be null or blank");
         }
@@ -420,6 +423,9 @@ public class ClientService {
         }
         if (client.getBirthDate().isAfter(LocalDate.now())) {
             throw new BusinessException("Client birthdate cannot be in the future");
+        }
+        if (client.getBirthDate().isAfter(LocalDate.now().minusYears(18))) {
+            throw new BusinessException("Client must be at least 18 years old");
         }
         if (client.getDocument() == null || client.getDocument().isBlank()) {
             throw new BusinessException("Client document cannot be null or blank");
