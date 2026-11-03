@@ -76,6 +76,8 @@ public class SecurityConfig {
                             .hasAnyAuthority("ROLE_CLIENT", "ROLE_MANAGER",  "ROLE_ADMIN")
                             .requestMatchers(HttpMethod.PATCH, "/clients/{id}/password")
                             .hasAuthority("ROLE_CLIENT")
+                            .requestMatchers(HttpMethod.GET, "/companies/{id}", "/business-accounts/{id}")
+                            .hasAnyAuthority("ROLE_CLIENT","ROLE_ASSOCIATE", "ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers("/clients/**").hasAnyAuthority("ROLE_MANAGER","ROLE_ADMIN")
                             .requestMatchers("/employees/**", "/audits/**").hasAuthority("ROLE_ADMIN")
                             .requestMatchers(HttpMethod.POST, "/business-accounts", "/business-accounts/**")

@@ -53,6 +53,23 @@ public class EmployeeAuthorization {
                 || hasAuthority(authentication, "ROLE_" + EmployeeRole.ADMIN.name()));
     }
 
+    public boolean canSearchCompanies(Authentication authentication) {
+        return hasEmployeeIdentity(authentication)
+                && Arrays.stream(EmployeeRole.values())
+                .anyMatch(role -> hasAuthority(authentication, "ROLE_" + role.name()));
+    }
+
+    public boolean canAdministerCompany(Authentication authentication) {
+        return hasEmployeeIdentity(authentication)
+                && hasAuthority(authentication, "ROLE_" + EmployeeRole.ADMIN.name());
+    }
+
+    public boolean canManageCompany(Authentication authentication) {
+        return hasEmployeeIdentity(authentication)
+                && (hasAuthority(authentication, "ROLE_" + EmployeeRole.MANAGER.name())
+                || hasAuthority(authentication, "ROLE_" + EmployeeRole.ADMIN.name()));
+    }
+
     private boolean hasEmployeeIdentity(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()
                 || !(authentication instanceof JwtAuthenticationToken jwt)) {

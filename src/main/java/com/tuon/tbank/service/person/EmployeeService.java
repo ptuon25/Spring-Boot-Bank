@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class for managing employees.
+ *
+ * <p>This service provides methods to retrieve employee information from the database.</p>
+ */
 @Service
 public class EmployeeService {
 

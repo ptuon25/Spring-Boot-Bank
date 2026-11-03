@@ -127,10 +127,10 @@ public class TestConfig implements CommandLineRunner {
 
         employeeRepository.saveAll(Arrays.asList(employee1, employee2, admin, onLeaveEmployee));
 
-        Company company1 = new Company(null, "Tech Solutions Ltd", "Tech Solutions", client1, "123.456.789-0",
+        Company company1 = new Company(null, "Tech Solutions Ltd", "Tech Solutions", client1, "12ABC34501DE35",
                 LocalDate.of(1995, 2, 20), LocalDate.of(2019, 3, 14),
                 CompanyStatus.ACTIVE);
-        Company company2 = new Company(null, "Green Energy Inc", "Green Energy", client2, "987.654.321-0",
+        Company company2 = new Company(null, "Green Energy Inc", "Green Energy", client2, "98XYZ76543FG21",
                 LocalDate.of(2005, 6, 10), LocalDate.of(2020, 3, 14),
                 CompanyStatus.ACTIVE);
 

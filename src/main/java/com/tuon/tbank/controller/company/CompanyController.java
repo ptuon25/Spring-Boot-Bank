@@ -3,6 +3,7 @@ package com.tuon.tbank.controller.company;
 import com.tuon.tbank.entity.company.Company;
 import com.tuon.tbank.service.company.CompanyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,8 @@ public class CompanyController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Company> getClientById(@PathVariable Long id){
+    @PreAuthorize("@companyAuthorization.canReadCompany(#id, authentication)")
+    public ResponseEntity<Company> getCompanyById(@PathVariable Long id){
         Company company = companyService.getCompanyById(id);
         return ResponseEntity.ok().body(company);
     }

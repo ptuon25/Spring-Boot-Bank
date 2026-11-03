@@ -3,6 +3,7 @@ package com.tuon.tbank.controller.account;
 import com.tuon.tbank.entity.account.BusinessAccount;
 import com.tuon.tbank.service.account.BusinessAccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,6 +27,7 @@ public class BusinessAccountController {
     }
 
     @GetMapping(value = "/{id}")
+    @PreAuthorize("@companyAuthorization.canReadBusinessAccount(#id, authentication)")
     public ResponseEntity<BusinessAccount> getBusinessAccountById(@PathVariable Long id) {
         BusinessAccount businessAccount = businessAccountService.getBusinessAccountById(id);
         return ResponseEntity.ok().body(businessAccount);
