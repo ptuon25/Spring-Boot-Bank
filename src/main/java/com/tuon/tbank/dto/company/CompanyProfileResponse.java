@@ -17,7 +17,7 @@ import com.tuon.tbank.entity.person.Person;
 public record CompanyProfileResponse(
         Long id,
         String tradeName,
-        Person partner,
-        String registrationNumber
+        String registrationNumber,
+        PartnerSummaryResponse partner
 ) {
 }

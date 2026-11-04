@@ -116,7 +116,7 @@ public class CompanyAuthorization {
         JwtAuthenticationToken jwt = (JwtAuthenticationToken) authentication;
         String identityType = jwt.getToken().getClaimAsString("identity_type");
         if (UserIdentityType.EMPLOYEE.name().equals(identityType)) {
-            return hasAuthority(authentication, "ROLE_MANAGER")
+            return hasAuthority(authentication, "ROLE_ASSOCIATE")|| hasAuthority(authentication, "ROLE_MANAGER")
                     || hasAuthority(authentication, "ROLE_ADMIN");
         }
 

@@ -94,6 +94,14 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     List<Company> findByAffiliationDateBetweenAndDeletedFalse(LocalDate startDate, LocalDate endDate);
 
     /**
+     * Retrieves companies by their partner ID, since they're not marked as deleted.
+     *
+     * @param partnerId the ID of the company's principal partner
+     * @return a list of companies with the specified partner ID
+     */
+    List<Company> findByPartnerIdAndDeletedFalse(Long partnerId);
+
+    /**
      * Checks if a company exists by registration number.
      *
      * @param registrationNumber the company's registration number
