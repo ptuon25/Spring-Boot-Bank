@@ -65,6 +65,27 @@ public class CompanyMembership {
     @Enumerated(EnumType.STRING)
     private MembershipStatus status;
 
+    /**
+     * Default constructor for JPA.
+     */
+    public CompanyMembership() {
+    }
+
+    /**
+     * Constructs a new {@code CompanyMembership} with the specified company, client, role, and status.
+     *
+     * @param company the company to which the client belongs
+     * @param client  the client who is a member of the company
+     * @param role    the role of the client within the company
+     * @param status  the status of the membership
+     */
+    public CompanyMembership(Company company, Client client, CompanyMemberRole role, MembershipStatus status) {
+        this.company = company;
+        this.client = client;
+        this.role = role;
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

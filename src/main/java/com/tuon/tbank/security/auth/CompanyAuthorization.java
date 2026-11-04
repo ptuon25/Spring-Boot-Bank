@@ -158,6 +158,45 @@ public class CompanyAuthorization {
     }
 
     /**
+     * Checks if the authenticated user can manage members of the specified company.
+     *
+     * @param companyId      the ID of the company to check
+     * @param authentication the authentication information
+     * @return true if the user can manage members, false otherwise
+     */
+    public boolean canManageMembers(Long companyId, Authentication authentication) {
+        if (companyId == null || !isAuthenticated(authentication)) {
+            return false;
+        }
+
+        JwtAuthenticationToken jwt = (JwtAuthenticationToken) authentication;
+        String identityType = jwt.getToken().getClaimAsString("identity_type");
+        Long userId = getUserId(jwt);
+
+        if (userId == null) {
+            return false;
+        }
+
+        if (UserIdentityType.EMPLOYEE.name().equals(identityType)) {
+            return hasAuthority(authentication, "ROLE_MANAGER")
+                    || hasAuthority(authentication, "ROLE_ADMIN")
+                    || companyRepository.existsByIdAndPartnerIdAndDeletedFalse(
+                    companyId,
+                    userId);
+        }
+
+        return UserIdentityType.CLIENT.name().equals(identityType)
+                && (companyRepository.existsByIdAndPartnerIdAndDeletedFalse(
+                companyId,
+                userId)
+                || membershipRepository.existsByCompanyIdAndClientIdAndStatusAndRoleIn(
+                companyId,
+                userId,
+                MembershipStatus.ACTIVE,
+                List.of(CompanyMemberRole.ADMIN)));
+    }
+
+    /**
      * Checks if the authenticated user is properly authenticated.
      *
      * @param authentication the authentication information
@@ -172,11 +211,24 @@ public class CompanyAuthorization {
         return true;
     }
 
+    /**
+     * Checks if the authenticated user has the specified authority.
+     *
+     * @param authentication    the authentication information
+     * @param requiredAuthority the required authority to check
+     * @return true if the user has the required authority, false otherwise
+     */
     private boolean hasAuthority(Authentication authentication, String requiredAuthority) {
         return authentication.getAuthorities().stream()
                 .anyMatch(authority -> requiredAuthority.equals(authority.getAuthority()));
     }
 
+    /**
+     * Retrieves the user ID from the JWT authentication token.
+     *
+     * @param authentication the JWT authentication token
+     * @return the user ID if present and valid, null otherwise
+     */
     private Long getUserId(JwtAuthenticationToken authentication) {
         Object userId = authentication.getToken().getClaim("user_id");
         if (userId == null) {
