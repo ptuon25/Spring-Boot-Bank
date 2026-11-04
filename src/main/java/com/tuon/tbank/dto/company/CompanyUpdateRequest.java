@@ -1,7 +1,9 @@
 package com.tuon.tbank.dto.company;
 
 import com.tuon.tbank.entity.company.Company;
-import com.tuon.tbank.entity.person.Person;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 /**
  * Represents the company data provided to the API for a profile update.
@@ -12,13 +14,17 @@ import com.tuon.tbank.entity.person.Person;
  *
  * @param legalName          the company's legal name
  * @param tradeName          the company's trade name
- * @param partner            the company's partner
+ * @param partnerId          the company's partner identifier in the database
  * @param registrationNumber the company's registration number
  */
 public record CompanyUpdateRequest(
+        @NotBlank
         String legalName,
+        @NotBlank
         String tradeName,
-        Person partner,
+        @NotNull @Positive
+        Long partnerId,
+        @NotBlank
         String registrationNumber
 ) {
 }

@@ -2,11 +2,14 @@ package com.tuon.tbank.exception.controllerException;
 
 import com.tuon.tbank.exception.serviceException.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 
@@ -47,17 +50,27 @@ public class ResourceExceptionHandler {
     }
 
     /**
-     * Handles database-related failures with a {@code 400 Bad Request} response.
+     * Handles database failures with a {@code 500 Internal Server Error} response.
      *
-     * @param e the database exception
-     * @param request the request during which the failure occurred
+     * @param e the exception describing the database error
+     * @param request the request that could not be completed
      * @return the database error response
      */
     @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request) {
-        String error = "Database error";
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+    public ResponseEntity<StandardError> database(
+            DatabaseException e,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        StandardError err = new StandardError(
+                Instant.now(),
+                status.value(),
+                "Database error",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
         return ResponseEntity.status(status).body(err);
     }
 
@@ -134,5 +147,34 @@ public class ResourceExceptionHandler {
         HttpStatus status = HttpStatus.UNPROCESSABLE_CONTENT;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
+    }
+
+    /**
+     * Handles invalid request data with a {@code 400 Bad Request} response.
+     *
+     * @param e the exception describing the invalid request
+     * @param request the request that contained invalid data
+     * @return the invalid-request error response
+     */
+    @ExceptionHandler({
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class,
+            HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<StandardError> invalidRequest(
+            Exception e,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        StandardError error = new StandardError(
+                Instant.now(),
+                status.value(),
+                "Invalid request",
+                "The request contains invalid or malformed data.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
     }
 }

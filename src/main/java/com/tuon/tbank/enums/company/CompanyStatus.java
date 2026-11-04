@@ -14,7 +14,6 @@ package com.tuon.tbank.enums.company;
  * </ul>
  */
 public enum CompanyStatus {
-
     ACTIVE,
     INACTIVE,
     BLOCKED

@@ -7,6 +7,7 @@ import com.tuon.tbank.exception.serviceException.BusinessException;
 import com.tuon.tbank.exception.serviceException.DatabaseException;
 import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
 import com.tuon.tbank.repository.company.CompanyRepository;
+import com.tuon.tbank.repository.person.PersonRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -25,15 +26,16 @@ import java.util.Optional;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final PersonRepository personRepository;
 
     /**
      * Constructs a new instance of {@link CompanyService} with the specified dependencies.
      *
      * @param companyRepository the repository for accessing company data
      */
-    public CompanyService(CompanyRepository companyRepository) {
+    public CompanyService(CompanyRepository companyRepository, PersonRepository personRepository) {
         this.companyRepository = companyRepository;
-
+        this.personRepository = personRepository;
     }
 
     /**
@@ -113,6 +115,25 @@ public class CompanyService {
     }
 
     /**
+     * Retrieves companies by their principal partner's ID.
+     *
+     * @param partnerId the ID of the principal partner of the company
+     * @return a list of companies with the specified partner ID
+     * @throws BusinessException         if the partner ID is null or less than or equal to 0
+     * @throws ResourceNotFoundException if no companies are found with the specified partner ID
+     */
+    public List<Company> getCompaniesByPartnerId(Long partnerId) {
+        if (partnerId == null || partnerId <= 0) {
+            throw new BusinessException("Partner ID must be greater than 0");
+        }
+        List<Company> companies = companyRepository.findByPartnerIdAndDeletedFalse(partnerId);
+        if (companies.isEmpty()) {
+            throw new ResourceNotFoundException("Company not found with partner: " + partnerId);
+        }
+        return companies;
+    }
+
+    /**
      * Retrieves a company by its registration number.
      *
      * @param registrationNumber the registration number of the company
@@ -183,14 +204,14 @@ public class CompanyService {
      *
      * @param legalName          the legal name of the company
      * @param tradeName          the trade name of the company
-     * @param partner            the partner of the company
+     * @param partnerId          the identifier of the principal partner of the company
      * @param registrationNumber the registration number of the company
      * @param foundationDate     the date on which the company was founded
      * @return the newly registered {@link Company}
      * @throws BusinessException if any validation fails
      */
     @PreAuthorize("@companyAuthorization.canRegisterCompany(authentication)")
-    public Company registerCompany(String legalName, String tradeName, Person partner, String registrationNumber,
+    public Company registerCompany(String legalName, String tradeName, String registrationNumber, Long partnerId,
                                    LocalDate foundationDate) {
         if (legalName == null || legalName.isBlank()) {
             throw new BusinessException("Company legal name cannot be null or blank");
@@ -198,8 +219,8 @@ public class CompanyService {
         if (tradeName == null || tradeName.isBlank()) {
             throw new BusinessException("Company trade name cannot be null or blank");
         }
-        if (partner == null) {
-            throw new BusinessException("Company partner cannot be null");
+        if (partnerId == null || partnerId <= 0) {
+            throw new BusinessException("Company partner cannot be null or less than or equal to 0");
         }
         if (registrationNumber == null || registrationNumber.isBlank()) {
             throw new BusinessException("Company registration number cannot be null or blank");
@@ -210,6 +231,7 @@ public class CompanyService {
         if (foundationDate.isAfter(LocalDate.now())) {
             throw new BusinessException("Company foundation date cannot be in the future");
         }
+        Person partner = getActivePartnerById(partnerId);
         return createCompany(new Company(
                 null,
                 legalName,
@@ -256,13 +278,37 @@ public class CompanyService {
         if (company == null) {
             throw new BusinessException("Company cannot be null");
         }
+        if (company.getPartner() == null) {
+            throw new BusinessException("Company partner cannot be null");
+        }
+        return updateCompany(id, company.getLegalName(), company.getTradeName(),
+                company.getPartner().getId(), company.getRegistrationNumber());
+    }
+
+    /**
+     * Updates a company's profile using the partner ID received by the API.
+     *
+     * @param id the ID of the company to update
+     * @param legalName the company's legal name
+     * @param tradeName the company's trade name
+     * @param partnerId the ID of the company's principal partner
+     * @param registrationNumber the company's registration number
+     * @return the updated company
+     */
+    @PreAuthorize("@employeeAuthorization.canManageCompany(authentication)")
+    public Company updateCompany(Long id, String legalName, String tradeName, Long partnerId,
+                                 String registrationNumber) {
         Company entity = getCompanyById(id);
-        validateCompanyUpdate(company, id);
-        String normalizedRegistrationNumber = normalizeRegistrationNumber(company.getRegistrationNumber());
+        validateCompanyUpdate(id, legalName, tradeName, partnerId, registrationNumber);
+        Person partner = getActivePartnerById(partnerId);
+        String normalizedRegistrationNumber = normalizeRegistrationNumber(registrationNumber);
         validateRegistrationNumber(normalizedRegistrationNumber);
         validateRegistrationNumberNotRegistered(normalizedRegistrationNumber, id);
-        validateLegalNameNotRegistered(company.getLegalName(), id);
-        updateData(entity, company);
+        validateLegalNameNotRegistered(legalName, id);
+        entity.setLegalName(legalName);
+        entity.setTradeName(tradeName);
+        entity.setPartner(partner);
+        entity.setRegistrationNumber(normalizedRegistrationNumber);
         try {
             return companyRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
@@ -360,12 +406,21 @@ public class CompanyService {
      * @param existingCompany the existing company to be updated
      * @param updatedCompany  the company containing the updated values
      */
-    private void updateData(Company existingCompany, Company updatedCompany) {
-        existingCompany.setLegalName(updatedCompany.getLegalName());
-        existingCompany.setTradeName(updatedCompany.getTradeName());
-        existingCompany.setPartner(updatedCompany.getPartner());
-        existingCompany.setRegistrationNumber(
-                normalizeRegistrationNumber(updatedCompany.getRegistrationNumber()));
+    /**
+     * Resolves the partner ID received by the API to an active person entity.
+     *
+     * @param partnerId the partner identifier received in the request
+     * @return the active partner
+     * @throws BusinessException if the ID is invalid
+     * @throws ResourceNotFoundException if the partner does not exist or is deleted
+     */
+    private Person getActivePartnerById(Long partnerId) {
+        if (partnerId == null || partnerId <= 0) {
+            throw new BusinessException("Partner ID must be greater than 0");
+        }
+        return personRepository.findByIdAndDeletedFalse(partnerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Partner not found with id: " + partnerId));
     }
 
     /**
@@ -411,20 +466,21 @@ public class CompanyService {
      * @param id      the ID of the company being updated
      * @throws BusinessException if any required value is missing
      */
-    private void validateCompanyUpdate(Company company, Long id) {
+    private void validateCompanyUpdate(Long id, String legalName, String tradeName,
+                                       Long partnerId, String registrationNumber) {
         if (id == null) {
             throw new BusinessException("Company ID cannot be null");
         }
-        if (company.getLegalName() == null || company.getLegalName().isBlank()) {
+        if (legalName == null || legalName.isBlank()) {
             throw new BusinessException("Company legal name cannot be null or blank");
         }
-        if (company.getTradeName() == null || company.getTradeName().isBlank()) {
+        if (tradeName == null || tradeName.isBlank()) {
             throw new BusinessException("Company trade name cannot be null or blank");
         }
-        if (company.getPartner() == null) {
-            throw new BusinessException("Company partner cannot be null");
+        if (partnerId == null || partnerId <= 0) {
+            throw new BusinessException("Company partner ID must be greater than 0");
         }
-        if (company.getRegistrationNumber() == null || company.getRegistrationNumber().isBlank()) {
+        if (registrationNumber == null || registrationNumber.isBlank()) {
             throw new BusinessException("Company registration number cannot be null or blank");
         }
     }
