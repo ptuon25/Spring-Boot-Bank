@@ -1,6 +1,7 @@
 package com.tuon.tbank.controller.company;
 
 import com.tuon.tbank.dto.auth.CompanyRegistrationRequest;
+import com.tuon.tbank.dto.auth.CompanyRegistrationResponse;
 import com.tuon.tbank.dto.company.CompanyProfileResponse;
 import com.tuon.tbank.dto.company.PartnerSummaryResponse;
 import com.tuon.tbank.dto.company.CompanyUpdateRequest;
@@ -14,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -191,8 +194,8 @@ public class CompanyController {
      * @return the profile of the newly created company
      */
     @PostMapping
-    @PreAuthorize("@employeeAuthorization.canManageCompany(authentication)")
-    public ResponseEntity<CompanyProfileResponse> insertCompany(@Valid @RequestBody CompanyRegistrationRequest request){
+    public ResponseEntity<CompanyRegistrationResponse> insertCompany(
+            @Valid @RequestBody CompanyRegistrationRequest request){
         Company company = companyService.registerCompany(
                 request.legalName(),
                 request.tradeName(),
@@ -200,9 +203,13 @@ public class CompanyController {
                 request.partnerId(),
                 request.foundationDate()
         );
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(mapToCompanyProfileResponse(company));
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(company.getId()).toUri();
+        return ResponseEntity.created(uri).body(new CompanyRegistrationResponse(
+                company.getId(),
+                company.getTradeName(),
+                company.getPartner().getId(),
+                company.getRegistrationNumber()));
     }
 
     /**

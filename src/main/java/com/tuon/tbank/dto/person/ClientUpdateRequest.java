@@ -1,6 +1,10 @@
 package com.tuon.tbank.dto.person;
 
 import com.tuon.tbank.entity.person.Client;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.LocalDate;
 
@@ -16,5 +20,9 @@ import java.time.LocalDate;
  * @param document    the client's identification document
  * @param email       the client's e-mail address
  */
-public record ClientUpdateRequest(String name, LocalDate birthDate, String document, String email) {
+public record ClientUpdateRequest(
+        @NotBlank String name,
+        @NotNull @PastOrPresent LocalDate birthDate,
+        @NotBlank String document,
+        @NotBlank @Email String email) {
 }

@@ -1,7 +1,6 @@
 package com.tuon.tbank.dto.company;
 
 import com.tuon.tbank.entity.company.Company;
-import com.tuon.tbank.entity.person.Person;
 
 /**
  * Represents the basic company data returned by the API.

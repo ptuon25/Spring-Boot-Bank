@@ -18,13 +18,9 @@ import jakarta.validation.constraints.Positive;
  * @param registrationNumber the company's registration number
  */
 public record CompanyUpdateRequest(
-        @NotBlank
-        String legalName,
-        @NotBlank
-        String tradeName,
-        @NotNull @Positive
-        Long partnerId,
-        @NotBlank
-        String registrationNumber
+        @NotBlank String legalName,
+        @NotBlank String tradeName,
+        @NotNull @Positive Long partnerId,
+        @NotBlank String registrationNumber
 ) {
 }

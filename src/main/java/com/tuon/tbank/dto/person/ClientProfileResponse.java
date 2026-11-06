@@ -1,6 +1,9 @@
 package com.tuon.tbank.dto.person;
 
 import com.tuon.tbank.entity.person.Client;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 /**
  * Represents the basic client data returned by the API.
@@ -12,5 +15,7 @@ import com.tuon.tbank.entity.person.Client;
  * @param name     the client's full name
  * @param email    the client's e-mail address
  */
-public record ClientProfileResponse(Long id, String name, String email) {
+public record ClientProfileResponse(@Positive Long id,
+                                    @NotBlank String name,
+                                    @NotBlank @Email String email) {
 }
