@@ -139,6 +139,7 @@ public class EmployeeAuthorization {
         Object identityType = jwt.getToken().getClaim("identity_type");
         Object userId = getUserId(jwt);
         return UserIdentityType.EMPLOYEE.name().equals(identityType)
+                && hasEmployeeRole(authentication)
                 && employeeId.equals(userId);
     }
 
@@ -181,5 +182,24 @@ public class EmployeeAuthorization {
     private boolean hasAuthority(Authentication authentication, String requiredAuthority) {
         return authentication.getAuthorities().stream()
                 .anyMatch(authority -> requiredAuthority.equals(authority.getAuthority()));
+    }
+
+    private boolean hasEmployeeRole(Authentication authentication) {
+        return Arrays.stream(EmployeeRole.values())
+                .anyMatch(role -> hasAuthority(authentication, "ROLE_" + role.name()));
+    }
+
+    public boolean canReadEmployee(Long employeeId, Authentication authentication) {
+        if (employeeId == null || authentication == null || !authentication.isAuthenticated()
+                || !(authentication instanceof JwtAuthenticationToken jwt)) {
+            return false;
+        }
+        Object identityType = jwt.getToken().getClaim("identity_type");
+        if (UserIdentityType.EMPLOYEE.name().equals(identityType)) {
+            return isOwner(employeeId, authentication)
+                    || hasAuthority(authentication, "ROLE_ADMIN")
+                    || hasAuthority(authentication, "ROLE_MANAGER");
+        }
+        return isOwner(employeeId, authentication);
     }
 }

@@ -1,6 +1,5 @@
 package com.tuon.tbank.service.person;
 
-import com.tuon.tbank.entity.person.Client;
 import com.tuon.tbank.entity.person.Employee;
 import com.tuon.tbank.enums.person.EmployeeRole;
 import com.tuon.tbank.enums.person.EmployeeStatus;
@@ -55,7 +54,7 @@ public class EmployeeService {
      * @return a list of all employees that are marked as deleted
      */
     public List<Employee> getAllDeletedEmployees() {
-        return employeeRepository.findByDeletedTrue();
+        return employeeRepository.findAllByDeletedTrue();
     }
 
     /**
@@ -85,6 +84,22 @@ public class EmployeeService {
         }
         Optional<Employee> employee = employeeRepository.findByIdAndDeletedFalse(id);
         return employee.orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
+    }
+
+    /**
+     * Retrieves employees by their name, excluding deleted employees.
+     *
+     * <p>This method fetches employee records from the database based on the provided name.</p>
+     *
+     * @param name the name of the employee
+     * @return a list of employees with the specified name
+     * @throws BusinessException if the name is null or blank
+     */
+    public List<Employee> getEmployeeByName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException("Employee name cannot be null or blank");
+        }
+        return employeeRepository.findByNameContainingIgnoreCaseAndDeletedFalse(name);
     }
 
     /**
@@ -343,7 +358,7 @@ public class EmployeeService {
         if (employee == null) {
             throw new BusinessException("Employee cannot be null");
         }
-        if(employee.getId() == null){
+        if (employee.getId() == null) {
             throw new BusinessException("Employee ID cannot be null");
         }
         if (salary == null || salary.compareTo(BigDecimal.ZERO) < 0) {
@@ -362,18 +377,21 @@ public class EmployeeService {
      *
      * <p>This method retrieves the employee by their ID, sets the provided role, and saves the updated employee to the database.</p>
      *
-     * @param employee the employee to update the role for
-     * @param entity   the updated employee data
+     * @param id   the ID of the employee
+     * @param role the new role to set
      * @return the updated employee with the new role
      * @throws BusinessException if the role is null or if there is a database error
      */
     @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
-    public Employee setEmployeeRole(Employee employee, Employee entity) {
-        getEmployeeById(employee.getId());
-        if(employee.getRole() == entity.getRole()){
-            throw new BusinessException("Employee role cannot be equal to the current role");
+    public Employee setEmployeeRole(Long id, EmployeeRole role) {
+        Employee employee = getEmployeeById(id);
+        if (role == null) {
+            throw new BusinessException("Employee role cannot be null");
         }
-        employee.setRole(entity.getRole());
+        if (employee.getRole() == role) {
+            throw new BusinessException("Employee already has this role");
+        }
+        employee.setRole(role);
         try {
             return employeeRepository.saveAndFlush(employee);
         } catch (DataIntegrityViolationException e) {
@@ -382,53 +400,83 @@ public class EmployeeService {
     }
 
     /**
-     * Puts an employee on leave by updating their status.
+     * Puts an employee on leave by changing the employee's status to ON_LEAVE.
      *
-     * <p>This method retrieves the employee by their ID, checks if they are terminated, and updates their status to the provided status.</p>
+     * <p>Terminated employees cannot be put on leave.</p>
      *
-     * @param employee the employee to update the status for
-     * @param entity   the updated employee data
-     * @return the updated employee with the new status
-     * @throws BusinessException if the employee is terminated or if there is a database error
+     * @param id the unique identifier of the employee
+     * @return the updated employee
+     * @throws BusinessException if the employee is already on leave or is terminated
+     * @throws DatabaseException if a database constraint violation occurs
      */
     @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
-    public Employee putEmployeeOnLeave(Employee employee, Employee entity){
-        getEmployeeById(employee.getId());
-        if(entity.getStatus() == EmployeeStatus.TERMINATED){
-            throw new BusinessException("Cannot put employee on leave if they are terminated");
+    public Employee putEmployeeOnLeave(Long id) {
+        Employee employee = getEmployeeById(id);
+        if (employee.getStatus() == EmployeeStatus.ON_LEAVE) {
+            throw new BusinessException("Employee is already on leave");
         }
-        employee.setStatus(entity.getStatus());
+        if (employee.getStatus() == EmployeeStatus.TERMINATED) {
+            throw new BusinessException("Cannot put a terminated employee on leave");
+        }
         try {
+            employee.setStatus(EmployeeStatus.ON_LEAVE);
             return employeeRepository.saveAndFlush(employee);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Failed to set employee status: " + e.getMessage());
+            throw new DatabaseException("Could not put employee on leave due to a database constraint.");
         }
     }
 
     /**
-     * Terminates an employee by updating their status.
+     * Terminates an employee by changing the employee's status to TERMINATED.
      *
-     * <p>This method retrieves the employee by their ID, checks if they are terminated, and updates their status to the provided status.</p>
+     * <p>Employees on leave cannot be terminated through this operation.</p>
      *
-     * @param employee the employee to update the status for
-     * @param entity   the updated employee data
-     * @return the updated employee with the new status
-     * @throws BusinessException if the employee is not terminated or if there is a database error
+     * @param id the unique identifier of the employee
+     * @return the updated employee
+     * @throws BusinessException if the employee is already terminated or is on leave
+     * @throws DatabaseException if a database constraint violation occurs
      */
     @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
-    public Employee terminateEmployee(Employee employee, Employee entity){
-        getEmployeeById(employee.getId());
-        if(entity.getStatus() == EmployeeStatus.TERMINATED){
-            throw new BusinessException("The employee is already terminated");
+    public Employee terminateEmployee(Long id) {
+        Employee employee = getEmployeeById(id);
+        if (employee.getStatus() == EmployeeStatus.TERMINATED) {
+            throw new BusinessException("Employee is already terminated");
         }
-        if(entity.getStatus() == EmployeeStatus.ON_LEAVE){
+        if (employee.getStatus() == EmployeeStatus.ON_LEAVE) {
             throw new BusinessException("Cannot terminate an employee that is on leave");
         }
-        employee.setStatus(entity.getStatus());
         try {
+            employee.setStatus(EmployeeStatus.TERMINATED);
             return employeeRepository.saveAndFlush(employee);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Failed to set employee status: " + e.getMessage());
+            throw new DatabaseException("Could not terminate employee due to a database constraint.");
+        }
+    }
+
+    /**
+     * Reactivates an employee by changing the employee's status to ACTIVE.
+     *
+     * <p>Employees on leave or terminated can be reactivated.</p>
+     *
+     * @param id the unique identifier of the employee
+     * @return the reactivated employee
+     * @throws BusinessException if the employee is already active
+     * @throws DatabaseException if a database constraint violation occurs
+     */
+    @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
+    public Employee reactivateEmployee(Long id) {
+        Employee employee = getEmployeeById(id);
+        if (employee.getStatus() == EmployeeStatus.ACTIVE) {
+            throw new BusinessException("Employee is already active");
+        }
+        if (employee.getStatus() == EmployeeStatus.TERMINATED) {
+            throw new BusinessException("Cannot reactivate a terminated employee");
+        }
+        try {
+            employee.setStatus(EmployeeStatus.ACTIVE);
+            return employeeRepository.saveAndFlush(employee);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Could not reactivate employee due to a database constraint.");
         }
     }
 
@@ -438,41 +486,16 @@ public class EmployeeService {
      * <p>This method retrieves the employee by their ID, marks them as deleted, and saves the updated employee to the database.</p>
      *
      * @param id the ID of the employee to delete
-     * @return the deleted employee
      * @throws BusinessException if there is a database error during the delete operation
      */
     @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
-    public Employee deleteEmployee(Long id){
+    public void deleteEmployee(Long id) {
         Employee employee = getEmployeeById(id);
         try {
             employee.setDeleted(true);
-            return employeeRepository.saveAndFlush(employee);
+            employeeRepository.saveAndFlush(employee);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Failed to delete employee: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Reactivates an employee by updating their status.
-     *
-     * <p>This method retrieves the employee by their ID, checks if they are active, and updates their status to the provided status.</p>
-     *
-     * @param employee the employee to update the status for
-     * @param entity   the updated employee data
-     * @return the updated employee with the new status
-     * @throws BusinessException if the employee is not active or if there is a database error
-     */
-    @PreAuthorize("@employeeAuthorization.canManageEmployees(authentication)")
-    public Employee reactivateEmployee(Employee employee, Employee entity){
-        getEmployeeById(employee.getId());
-        if(entity.getStatus() == EmployeeStatus.ACTIVE){
-            throw new BusinessException("The employee is already active");
-        }
-        employee.setStatus(entity.getStatus());
-        try {
-            return employeeRepository.saveAndFlush(employee);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Failed to set employee status: " + e.getMessage());
         }
     }
 

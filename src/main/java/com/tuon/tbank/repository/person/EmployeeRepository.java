@@ -25,11 +25,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findAllByDeletedFalse();
 
     /**
-     * Retrieves a list of employees that have been marked as deleted and match the specified document.
+     * Retrieves a list of employees that have been marked as deleted.
      *
-     * @return a list of employees that are marked as deleted and match the specified document
+     * @return a list of employees that are marked as deleted
      */
-    List<Employee> findByDeletedTrue();
+    List<Employee> findAllByDeletedTrue();
 
     /**
      * Retrieves an employee by their unique ID, ensuring they are not marked as deleted.
@@ -38,6 +38,14 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
      * @return an {@link Optional} containing the employee if found and not deleted, or an empty {@link Optional} otherwise
      */
     Optional<Employee> findByIdAndDeletedFalse(Long id);
+
+    /**
+     * Retrieves a list of employees whose names contain the specified string, ignoring case, and are not marked as deleted.
+     *
+     * @param name the string to search for in employee names
+     * @return a list of employees whose names contain the specified string and are not marked as deleted
+     */
+    List<Employee> findByNameContainingIgnoreCaseAndDeletedFalse(String name);
 
     /**
      * Retrieves a list of employees whose birthdays fall within the specified range and are not marked as deleted.
