@@ -79,7 +79,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/companies/{id}", "/business-accounts/{id}")
                             .hasAnyAuthority("ROLE_CLIENT","ROLE_ASSOCIATE", "ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers("/clients/**").hasAnyAuthority("ROLE_MANAGER","ROLE_ADMIN")
-                            .requestMatchers("/employees/**", "/audits/**").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/audits/**").hasAuthority("ROLE_ADMIN")
                             .requestMatchers(HttpMethod.POST, "/business-accounts", "/business-accounts/**")
                             .hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers(HttpMethod.POST, "/companies")

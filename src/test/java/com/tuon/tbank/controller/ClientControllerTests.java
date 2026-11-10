@@ -399,8 +399,8 @@ public class ClientControllerTests {
         TestClient client = createClient();
         mockMvc.perform(put("/clients/" + client.id()).header("Authorization", bearer(managerToken()))
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.message").value("Client name cannot be null or blank"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Request validation failed."));
     }
 
     @Test

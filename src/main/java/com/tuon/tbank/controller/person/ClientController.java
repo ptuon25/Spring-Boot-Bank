@@ -186,9 +186,9 @@ public class ClientController {
      * @param request the client registration data
      * @return the registration response and resource location
      */
-    @PostMapping
-    public ResponseEntity<ClientRegistrationResponse> insertClient(
-            @Valid @RequestBody ClientRegistrationRequest request) {
+     @PostMapping
+     public ResponseEntity<ClientRegistrationResponse> insertClient(
+             @Valid @RequestBody ClientRegistrationRequest request) {
         Client obj = clientService.registerClient(request.name(), request.birthDate(), request.document(),
                 request.email(), request.password());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

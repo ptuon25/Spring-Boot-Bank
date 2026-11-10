@@ -152,6 +152,7 @@ public class ClientService {
      * @return the persisted client
      * @throws DatabaseException if a database constraint violation occurs
      */
+    @PreAuthorize("@employeeAuthorization.canManageClients(authentication)")
     public Client createClient(Client client) {
 
         validateForCreateClient(client);
@@ -174,7 +175,6 @@ public class ClientService {
      * @param password  the client's raw password
      * @return the registered client
      */
-    @PreAuthorize("@employeeAuthorization.canManageClients(authentication)")
     public Client registerClient(String name, LocalDate birthDate, String document, String email, String password) {
         if (password == null || password.isBlank()) {
             throw new BusinessException("Client password cannot be null or blank");
