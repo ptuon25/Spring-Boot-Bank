@@ -273,8 +273,8 @@ public class CompanyService {
      * @return the updated {@link Company}
      * @throws BusinessException if any validation fails
      */
-    @PreAuthorize("@employeeAuthorization.canManageCompany(authentication)")
-    public Company updateCompany(Long id, Company company) {
+    @PreAuthorize("@employeeAuthorization.canAdmnister(authentication)")
+    public Company replaceCompany(Long id, Company company) {
         if (company == null) {
             throw new BusinessException("Company cannot be null");
         }
@@ -309,6 +309,23 @@ public class CompanyService {
         entity.setTradeName(tradeName);
         entity.setPartner(partner);
         entity.setRegistrationNumber(normalizedRegistrationNumber);
+        try {
+            return companyRepository.saveAndFlush(entity);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Could not update company due to a database constraint.");
+        }
+    }
+
+    @PreAuthorize("@employeeAuthorization.canManageCompany(authentication)")
+    public Company updateFoundationDate(Long id, LocalDate foundationDate) {
+        Company entity = getCompanyById(id);
+        if (foundationDate == null) {
+            throw new BusinessException("Company foundation date cannot be null");
+        }
+        if (foundationDate.isAfter(LocalDate.now())) {
+            throw new BusinessException("Company foundation date cannot be in the future");
+        }
+        entity.setFoundationDate(foundationDate);
         try {
             return companyRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {

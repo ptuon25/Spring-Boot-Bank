@@ -2,6 +2,7 @@ package com.tuon.tbank.controller.company;
 
 import com.tuon.tbank.dto.auth.CompanyRegistrationRequest;
 import com.tuon.tbank.dto.auth.CompanyRegistrationResponse;
+import com.tuon.tbank.dto.company.CompanyFoundationDateUpdateRequest;
 import com.tuon.tbank.dto.company.CompanyProfileResponse;
 import com.tuon.tbank.dto.company.PartnerSummaryResponse;
 import com.tuon.tbank.dto.company.CompanyUpdateRequest;
@@ -231,6 +232,22 @@ public class CompanyController {
                         request.tradeName(),
                         request.partnerId(),
                         request.registrationNumber())));
+    }
+
+    /**
+     * Updates a company's foundation date.
+     *
+     * @param id the unique identifier of the company
+     * @param request the new foundation date
+     * @return the updated company profile
+     */
+    @PutMapping("/{id}/foundation-date")
+    @PreAuthorize("@employeeAuthorization.canManageCompany(authentication)")
+    public ResponseEntity<CompanyProfileResponse> updateFoundationDate(
+            @PathVariable Long id,
+            @Valid @RequestBody CompanyFoundationDateUpdateRequest request) {
+        return ResponseEntity.ok(mapToCompanyProfileResponse(
+                companyService.updateFoundationDate(id, request.foundationDate())));
     }
 
     /**

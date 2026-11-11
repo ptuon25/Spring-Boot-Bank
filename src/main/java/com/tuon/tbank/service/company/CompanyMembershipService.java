@@ -55,6 +55,12 @@ public class CompanyMembershipService {
             Long clientId,
             CompanyMemberRole role) {
         validateRole(role);
+        if (companyId == null || companyId <= 0) {
+            throw new BusinessException("Company ID must be greater than 0");
+        }
+        if (clientId == null || clientId <= 0) {
+            throw new BusinessException("Client ID must be greater than 0");
+        }
 
         Company company = getCompany(companyId);
         Client client = getActiveClient(clientId);

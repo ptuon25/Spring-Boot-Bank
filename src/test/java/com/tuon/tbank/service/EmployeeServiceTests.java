@@ -196,6 +196,8 @@ class EmployeeServiceTests {
                         next(), "unauthorized@email.test", PASSWORD, EmployeeRole.ASSOCIATE));
     }
 
+    //AUXILIARY
+
     private Employee register(String name, String document, String email, String password) {
         return employeeService.registerEmployee(name, BIRTH_DATE, document, email, password, EmployeeRole.MANAGER);
     }
