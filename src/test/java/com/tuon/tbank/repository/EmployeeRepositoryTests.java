@@ -30,12 +30,6 @@ public class EmployeeRepositoryTests {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private EntityManager entityManager;
-
     @Test
     void findEmployeeReturnsTrueResults() {
         Employee activeAssociate1 = saveAssociate();
