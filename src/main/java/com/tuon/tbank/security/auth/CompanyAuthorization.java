@@ -23,22 +23,17 @@ public class CompanyAuthorization {
 
     private final CompanyRepository companyRepository;
     private final CompanyMembershipRepository membershipRepository;
-    private final BusinessAccountRepository businessAccountRepository;
 
     /**
      * Constructs a new instance of {@code CompanyAuthorization} with the specified repositories.
      *
      * @param companyRepository         the repository for accessing company data
      * @param membershipRepository      the repository for accessing company membership data
-     * @param businessAccountRepository the repository for accessing business account data
      */
     public CompanyAuthorization(CompanyRepository companyRepository,
-                                CompanyMembershipRepository membershipRepository,
-                                BusinessAccountRepository businessAccountRepository) {
+                                CompanyMembershipRepository membershipRepository) {
         this.companyRepository = companyRepository;
-        this.membershipRepository = membershipRepository;
-        this.businessAccountRepository = businessAccountRepository;
-    }
+        this.membershipRepository = membershipRepository;}
 
     /**
      * Checks if the authenticated user can read the specified company.
@@ -83,6 +78,19 @@ public class CompanyAuthorization {
                         CompanyMemberRole.OPERATOR, CompanyMemberRole.VIEWER));
     }
 
+    public boolean isOwner(Long companyId, Long partnerId, Authentication authentication) {
+        if (companyId == null || partnerId == null || authentication == null || !authentication.isAuthenticated()
+                || !(authentication instanceof JwtAuthenticationToken jwt)) {
+            return false;
+        }
+        Object identityType = jwt.getToken().getClaim("identity_type");
+        Object userId = getUserId(jwt);
+        return UserIdentityType.CLIENT.name().equals(identityType)
+                && hasAuthority(authentication, "ROLE_CLIENT")
+                && partnerId.equals(userId)
+                && companyRepository.existsByIdAndPartnerIdAndDeletedFalse(companyId, partnerId);
+    }
+
     /**
      * Determines whether the authenticated user can register a company.
      *
@@ -102,33 +110,6 @@ public class CompanyAuthorization {
         return UserIdentityType.EMPLOYEE.name().equals(identityType)
                 && (hasAuthority(authentication, "ROLE_MANAGER")
                 || hasAuthority(authentication, "ROLE_ADMIN"));
-    }
-
-    /**
-     * Checks whether the authenticated client can access a business account.
-     * The account is filtered by its owning company in the database.
-     */
-    public boolean canReadBusinessAccount(Long accountId, Authentication authentication) {
-        if (accountId == null || !isAuthenticated(authentication)) {
-            return false;
-        }
-
-        JwtAuthenticationToken jwt = (JwtAuthenticationToken) authentication;
-        String identityType = jwt.getToken().getClaimAsString("identity_type");
-        if (UserIdentityType.EMPLOYEE.name().equals(identityType)) {
-            return hasAuthority(authentication, "ROLE_ASSOCIATE")|| hasAuthority(authentication, "ROLE_MANAGER")
-                    || hasAuthority(authentication, "ROLE_ADMIN");
-        }
-
-        Long clientId = getUserId(jwt);
-        return UserIdentityType.CLIENT.name().equals(identityType)
-                && clientId != null
-                && businessAccountRepository.existsAccessibleByClient(
-                accountId,
-                clientId,
-                MembershipStatus.ACTIVE,
-                List.of(CompanyMemberRole.ADMIN,
-                        CompanyMemberRole.OPERATOR, CompanyMemberRole.VIEWER));
     }
 
     /**
