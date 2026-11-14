@@ -131,6 +131,13 @@ public class EmployeeAuthorization {
                 || hasAuthority(authentication, "ROLE_" + EmployeeRole.ADMIN.name()));
     }
 
+    /**
+     * Determines whether the authenticated principal is the owner of the employee record.
+     *
+     * @param employeeId the ID of the employee record
+     * @param authentication the current authentication
+     * @return {@code true} if the authenticated principal is the owner; {@code false} otherwise
+     */
     public boolean isOwner(Long employeeId, Authentication authentication) {
         if (employeeId == null || authentication == null || !authentication.isAuthenticated()
                 || !(authentication instanceof JwtAuthenticationToken jwt)) {

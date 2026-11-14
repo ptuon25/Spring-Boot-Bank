@@ -119,7 +119,7 @@ public class CompanyAuthorization {
      * @param authentication the authentication information
      * @return true if the user can read the company membership, false otherwise
      */
-    private boolean canReadCompanyMembership(Long membershipId, Authentication authentication) {
+    public boolean canReadCompanyMembership(Long membershipId, Authentication authentication) {
         if (!isAuthenticated(authentication)) {
             return false;
         }
