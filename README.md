@@ -122,4 +122,4 @@ The full access matrix is in [SECURITY.md](SECURITY.md).
 
 ## License
 
-To be defined.
+This project is licensed under the [MIT License](LICENSE).
