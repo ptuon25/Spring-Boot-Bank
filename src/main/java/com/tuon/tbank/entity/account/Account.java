@@ -52,6 +52,8 @@ public abstract class Account implements TransferEndpoint {
 
     /**
      * Stores the account number.
+     *
+     * <p>The account number is a unique identifier for each account and is used to distinguish one account from another.</p>
      */
     @Column(unique = true, nullable = false)
     private String accountNumber;
@@ -176,6 +178,11 @@ public abstract class Account implements TransferEndpoint {
     @JsonIgnore
     @OneToMany(mappedBy = "account")
     private Set<AuditRecord> auditRecords = new HashSet<>();
+
+    /**
+     * Indicates whether the account is deleted.
+     */
+    private boolean deleted = false;
 
     /**
      * Default constructor for the Account class.

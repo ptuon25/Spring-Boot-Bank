@@ -3,6 +3,7 @@ package com.tuon.tbank.security.auth;
 import com.tuon.tbank.enums.auth.UserIdentityType;
 import com.tuon.tbank.enums.company.CompanyMemberRole;
 import com.tuon.tbank.enums.company.MembershipStatus;
+import com.tuon.tbank.entity.account.BusinessAccount;
 import com.tuon.tbank.repository.account.BusinessAccountRepository;
 import com.tuon.tbank.repository.account.CheckingAccountRepository;
 import com.tuon.tbank.repository.account.JointAccountRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides authorization checks for account-related operations.
@@ -212,6 +214,70 @@ public class AccountAuthorization {
                 List.of(CompanyMemberRole.ADMIN));
     }
 
+    /**
+     * Determines whether the authenticated principal can read a business account
+     * by its account number.
+     *
+     * @param accountNumber  the account number of the business account
+     * @param authentication the current authentication
+     * @return {@code true} for any employee, or for a client that is the company's
+     * principal partner or an active member with the ADMIN, OPERATOR or VIEWER role;
+     * {@code false} otherwise
+     */
+    public boolean canReadBusinessAccountByNumber(String accountNumber, Authentication authentication) {
+        if (accountNumber == null || accountNumber.isBlank() || !isAuthenticated(authentication)) {
+            return false;
+        }
+
+        String normalizedNumber = normalizeBusinessAccountNumber(accountNumber);
+        Optional<BusinessAccount> businessAccount =
+                businessAccountRepository.findByAccountNumberAndDeletedFalse(normalizedNumber);
+
+        return businessAccount.isPresent()
+                && canReadBusinessAccount(businessAccount.get().getId(), authentication);
+    }
+
+    /**
+     * Determines whether the authenticated principal can manage a business account
+     * identified by its account number.
+     *
+     * @param accountNumber  the account number of the business account
+     * @param authentication the current authentication
+     * @return {@code true} if the principal can manage the account
+     */
+    public boolean canManageBusinessAccountByNumber(String accountNumber, Authentication authentication) {
+        if (accountNumber == null || accountNumber.isBlank() || !isAuthenticated(authentication)) {
+            return false;
+        }
+
+        String normalizedNumber = normalizeBusinessAccountNumber(accountNumber);
+        Optional<BusinessAccount> businessAccount =
+                businessAccountRepository.findByAccountNumberAndDeletedFalse(normalizedNumber);
+
+        return businessAccount.isPresent()
+                && canManageBusinessAccount(businessAccount.get().getId(), authentication);
+    }
+
+    /**
+     * Determines whether the authenticated principal may list business accounts
+     * for the specified client.
+     *
+     * @param clientId       the client ID being queried
+     * @param authentication the current authentication
+     * @return {@code true} for an authorized employee or for the client itself
+     */
+    public boolean canListBusinessAccountsForClient(Long clientId, Authentication authentication) {
+        if (clientId == null || clientId <= 0 || !isAuthenticated(authentication)) {
+            return false;
+        }
+        if (isEmployee(authentication)) {
+            return canSearchAccount(authentication);
+        }
+
+        Long authenticatedClientId = getClientId(authentication);
+        return authenticatedClientId != null && authenticatedClientId.equals(clientId);
+    }
+
     // ACCOUNT OPENING
 
     /**
@@ -341,6 +407,20 @@ public class AccountAuthorization {
         return authentication != null
                 && authentication.isAuthenticated()
                 && authentication instanceof JwtAuthenticationToken;
+    }
+
+    /**
+     * Normalizes a business account number from eight digits or its full BA format.
+     */
+    private String normalizeBusinessAccountNumber(String accountNumber) {
+        String trimmedNumber = accountNumber.trim();
+        if (trimmedNumber.matches("\\d{8}")) {
+            return "BA-" + trimmedNumber;
+        }
+        if (!trimmedNumber.matches("BA-\\d{8}")) {
+            return "";
+        }
+        return trimmedNumber;
     }
 
     /**
