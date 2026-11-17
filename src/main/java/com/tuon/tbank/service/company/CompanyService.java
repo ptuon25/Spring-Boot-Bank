@@ -417,12 +417,7 @@ public class CompanyService {
         }
     }
 
-    /**
-     * Updates the data of an existing company with the values from an updated company.
-     *
-     * @param existingCompany the existing company to be updated
-     * @param updatedCompany  the company containing the updated values
-     */
+
     /**
      * Resolves the partner ID received by the API to an active person entity.
      *
