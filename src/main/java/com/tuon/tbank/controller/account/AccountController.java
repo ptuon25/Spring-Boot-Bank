@@ -37,7 +37,7 @@ public class AccountController {
      */
     @GetMapping
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<List<AccountProfileResponse>> getAllAccounts(){
+    public ResponseEntity<List<AccountProfileResponse>> getAllAccounts() {
         List<AccountProfileResponse> response = toProfiles(accountService.getAllAccounts());
         return response.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
     }
@@ -49,7 +49,7 @@ public class AccountController {
      */
     @GetMapping("/valid")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<List<AccountProfileResponse>> getAllValidAccounts(){
+    public ResponseEntity<List<AccountProfileResponse>> getAllValidAccounts() {
         List<AccountProfileResponse> response = toProfiles(accountService.getAllValidAccounts());
         return response.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
     }
@@ -61,7 +61,7 @@ public class AccountController {
      */
     @GetMapping("/deleted")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<List<AccountProfileResponse>> getAllDeletedAccounts(){
+    public ResponseEntity<List<AccountProfileResponse>> getAllDeletedAccounts() {
         List<AccountProfileResponse> response = toProfiles(accountService.getAllDeletedAccounts());
         return response.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
     }
@@ -74,7 +74,7 @@ public class AccountController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getAccountById(@PathVariable Long id){
+    public ResponseEntity<AccountProfileResponse> getAccountById(@PathVariable Long id) {
         Account account = accountService.getAccountById(id);
         return ResponseEntity.ok(mapToAccountProfileResponse(account));
     }
@@ -87,7 +87,7 @@ public class AccountController {
      */
     @GetMapping("/search/{accountNumber}")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getAccountByAccountNumber(String accountNumber){
+    public ResponseEntity<AccountProfileResponse> getAccountByAccountNumber(String accountNumber) {
         return ResponseEntity.ok(mapToAccountProfileResponse(accountService.getAccountByAccountNumber(accountNumber)));
     }
 
@@ -95,14 +95,14 @@ public class AccountController {
      * Retrieves accounts by their opening date range.
      *
      * @param startDate the start date of the range
-     * @param endDate the end date of the range
+     * @param endDate   the end date of the range
      * @return a ResponseEntity containing a list of AccountProfileResponse objects or no content if none found
      */
     @GetMapping("/search/opening-date-range")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
     public ResponseEntity<List<AccountProfileResponse>> getAccountByOpeningDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(toProfiles(accountService.getAccountByOpeningDateRange(startDate, endDate)));
     }
 
@@ -114,7 +114,7 @@ public class AccountController {
      */
     @GetMapping("/search/status")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<List<AccountProfileResponse>> getAccountByStatus(@RequestParam AccountStatus status){
+    public ResponseEntity<List<AccountProfileResponse>> getAccountByStatus(@RequestParam AccountStatus status) {
         return ResponseEntity.ok(toProfiles(accountService.getAccountByStatus(status)));
     }
 
@@ -126,7 +126,7 @@ public class AccountController {
      */
     @GetMapping("/search/deleted/{id}")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getDeletedAccountById(@PathVariable Long id){
+    public ResponseEntity<AccountProfileResponse> getDeletedAccountById(@PathVariable Long id) {
         Account account = accountService.getByIdAndDeletedTrue(id);
         return ResponseEntity.ok(mapToAccountProfileResponse(account));
     }
@@ -139,7 +139,7 @@ public class AccountController {
      */
     @GetMapping("/search/deleted/account-number")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getDeletedAccountByAccountNumber(@RequestParam String accountNumber){
+    public ResponseEntity<AccountProfileResponse> getDeletedAccountByAccountNumber(@RequestParam String accountNumber) {
         Account account = accountService.getByAccountNumberAndDeletedTrue(accountNumber);
         return ResponseEntity.ok(mapToAccountProfileResponse(account));
     }
@@ -148,14 +148,14 @@ public class AccountController {
      * Retrieves all deleted accounts within a specified date range.
      *
      * @param startDate the start date of the range
-     * @param endDate the end date of the range
+     * @param endDate   the end date of the range
      * @return a ResponseEntity containing a list of AccountProfileResponse objects or no content if none found
      */
     @GetMapping("/search/deleted/opening-date-range")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
     public ResponseEntity<List<AccountProfileResponse>> getDeletedAccountByOpeningDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<Account> accounts = accountService.getAccountByOpeningDateRangeAndDeletedTrue(startDate, endDate);
         return ResponseEntity.ok(toProfiles(accounts));
     }
@@ -168,7 +168,7 @@ public class AccountController {
      */
     @GetMapping("/search/deleted/status")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<List<AccountProfileResponse>> getDeletedAccountByStatus(@RequestParam AccountStatus status){
+    public ResponseEntity<List<AccountProfileResponse>> getDeletedAccountByStatus(@RequestParam AccountStatus status) {
         List<Account> accounts = accountService.getAccountByStatusAndDeletedTrue(status);
         return ResponseEntity.ok(toProfiles(accounts));
     }
