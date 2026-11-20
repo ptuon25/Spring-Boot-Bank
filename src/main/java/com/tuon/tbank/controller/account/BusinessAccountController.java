@@ -235,6 +235,7 @@ public class BusinessAccountController {
      * @param accountId the ID of the business account to restore
      * @return a ResponseEntity containing the AccountProfileResponse of the restored account
      */
+    @PatchMapping(value = "/{accountId}/restore")
     @PreAuthorize("@accountAuthorization.canManageBusinessAccount(#accountId, authentication)")
     public ResponseEntity<AccountProfileResponse> restoreBusinessAccount(@PathVariable Long accountId) {
         return ResponseEntity.ok(mapToAccountProfileResponse(businessAccountService.restoreBusinessAccount(accountId)));

@@ -96,6 +96,17 @@ public class CheckingAccountService {
         return checkingAccount.orElseThrow(() -> new ResourceNotFoundException("Checking account not found"));
     }
 
+    /**
+     * Retrieves a checking account by its account number.
+     *
+     * <p>This method checks if the provided account number is valid and then attempts to find a checking account
+     * that matches the account number. If no account is found, a ResourceNotFoundException is thrown.</p>
+     *
+     * @param accountNumber the account number of the checking account
+     * @return the found CheckingAccount
+     * @throws BusinessException         if the account number is null or empty
+     * @throws ResourceNotFoundException if no checking account is found for the given account number
+     */
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
     public CheckingAccount getCheckingAccountByAccountNumber(String accountNumber) {
         if (accountNumber == null || accountNumber.isEmpty()) {
