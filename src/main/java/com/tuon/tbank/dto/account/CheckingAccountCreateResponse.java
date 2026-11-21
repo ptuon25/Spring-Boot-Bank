@@ -8,6 +8,14 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
 
+/**
+ * Represents the response for creating a checking account.
+ *
+ * @param id            the unique identifier of the checking account
+ * @param accountNumber the account number of the checking account
+ * @param openingDate   the date when the checking account was opened
+ * @param owner         the owner of the checking account
+ */
 public record CheckingAccountCreateResponse(@Positive Long id,
                                             @NotBlank String accountNumber,
                                             @NotNull @PastOrPresent LocalDate openingDate,
