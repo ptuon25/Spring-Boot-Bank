@@ -93,12 +93,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
      * @param accountNumber the account number to search for
      * @return an {@link Optional} containing the found account, or empty if not found
      */
-    @Query("""
-                select account
-                from Account account
-                where account.accountNumber like concat('%-', :number)
-                  and account.deleted = false
-            """)
     Optional<Account> findByAccountNumberAndDeletedTrue(String accountNumber);
 
     /**

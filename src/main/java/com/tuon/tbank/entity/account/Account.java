@@ -128,7 +128,7 @@ public abstract class Account implements TransferEndpoint {
      */
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "sourceAccount")
-    private Set<ScheduledTransaction> destinationScheduledTransactions = new HashSet<>();
+    private Set<ScheduledTransaction> sourceScheduledTransactions = new HashSet<>();
 
     /**
      * Stores the scheduled transactions associated with the account.
@@ -136,7 +136,7 @@ public abstract class Account implements TransferEndpoint {
      */
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "destinationAccount")
-    private Set<ScheduledTransaction> sourceScheduledTransactions = new HashSet<>();
+    private Set<ScheduledTransaction> destinationScheduledTransactions = new HashSet<>();
 
     /**
      * Stores the investment portfolios associated with the account.
@@ -189,7 +189,8 @@ public abstract class Account implements TransferEndpoint {
      * <p>This constructor is required by JPA and should not be used directly.</p>
      */
     public Account(){
-
+        this.balance = BigDecimal.ZERO;
+        this.openingDate = LocalDate.now();
     }
 
     /**
@@ -204,8 +205,8 @@ public abstract class Account implements TransferEndpoint {
     public Account(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status) {
         this.id = id;
         this.accountNumber = accountNumber;
-        this.balance = balance;
-        this.openingDate = openingDate;
+        this.balance = balance == null ? BigDecimal.ZERO : balance;
+        this.openingDate = openingDate == null ? LocalDate.now() : openingDate;
         this.status = status;
     }
 

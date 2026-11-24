@@ -87,7 +87,7 @@ public class AccountController {
      */
     @GetMapping("/search/{accountNumber}")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getAccountByAccountNumber(String accountNumber) {
+    public ResponseEntity<AccountProfileResponse> getAccountByAccountNumber(@PathVariable String accountNumber) {
         return ResponseEntity.ok(mapToAccountProfileResponse(accountService.getAccountByAccountNumber(accountNumber)));
     }
 
