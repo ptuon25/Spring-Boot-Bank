@@ -1,6 +1,6 @@
 package com.tuon.tbank.dto.account;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Represents a request to update the status of an account.
@@ -9,5 +9,5 @@ import jakarta.validation.constraints.NotNull;
  *
  * @param accountNumber The unique identifier of the account whose status is to be updated.
  */
-public record AccountStatusUpdateRequest(@NotNull String accountNumber) {
+public record AccountStatusUpdateRequest(@NotBlank String accountNumber) {
 }

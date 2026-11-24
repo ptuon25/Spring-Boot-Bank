@@ -12,11 +12,7 @@ import java.time.LocalDate;
  * DTO for creating a business account.
  * <p>This record is used to encapsulate the necessary information for creating a new business account in the system.</p>
  *
- * @param balance The initial balance of the business account.
- * @param openingDate The date when the business account was opened.
- * @param owner The company that owns the business account.
+ * @param companyId The ID of the company for which the business account is being created. Must not be null.
  */
-public record BusinessAccountCreateRequest(@NotNull BigDecimal balance,
-                                           @NotNull @PastOrPresent LocalDate openingDate,
-                                           @NotNull @Positive Company owner) {
+public record BusinessAccountCreateRequest(@NotNull Long companyId) {
 }

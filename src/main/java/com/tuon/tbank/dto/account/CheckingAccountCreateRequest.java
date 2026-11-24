@@ -13,11 +13,7 @@ import java.time.LocalDate;
  * This record encapsulates the necessary information for creating a checking account,
  * including the account details and the owner of the account.
  *
- * @param balance The initial balance of the checking account.
- * @param openingDate The date the checking account was opened.
- * @param owner The owner of the checking account.
+ * @param ownerId The ID of the owner of the checking account.
  */
-public record CheckingAccountCreateRequest(@NotNull BigDecimal balance,
-                                           @NotNull @PastOrPresent LocalDate openingDate,
-                                           @NotNull Client owner) {
+public record CheckingAccountCreateRequest(@NotNull Long ownerId) {
 }
