@@ -17,7 +17,7 @@ public interface CheckingAccountRepository extends JpaRepository<CheckingAccount
      * @param ownerId the ID of the owner
      * @return an {@link Optional} containing the found checking account, or empty if not found
      */
-    Optional<CheckingAccount> findByOwnerIdAndDeletedFalse(Long ownerId);
+    List<CheckingAccount> findByOwnerIdAndDeletedFalse(Long ownerId);
 
     /**
      * Retrieves a checking account by its ID and owner ID, ensuring it is not marked as deleted.

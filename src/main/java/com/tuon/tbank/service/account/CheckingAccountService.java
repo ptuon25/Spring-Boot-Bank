@@ -4,6 +4,7 @@ import com.tuon.tbank.dto.account.AccountBalanceResponse;
 import com.tuon.tbank.entity.account.CheckingAccount;
 import com.tuon.tbank.entity.person.Client;
 import com.tuon.tbank.enums.account.AccountStatus;
+import com.tuon.tbank.enums.person.ClientStatus;
 import com.tuon.tbank.exception.serviceException.BusinessException;
 import com.tuon.tbank.exception.serviceException.DatabaseException;
 import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
@@ -64,12 +65,11 @@ public class CheckingAccountService {
      * @throws ResourceNotFoundException if no checking account is found for the given owner ID
      */
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public CheckingAccount getCheckingAccountByOwnerId(Long ownerId) {
+    public List<CheckingAccount> getCheckingAccountByOwnerId(Long ownerId) {
         if (ownerId == null || ownerId <= 0) {
             throw new BusinessException("Owner ID cannot be null or zero");
         }
-        Optional<CheckingAccount> checkingAccount = checkingAccountRepository.findByOwnerIdAndDeletedFalse(ownerId);
-        return checkingAccount.orElseThrow(() -> new ResourceNotFoundException("Checking account not found"));
+        return checkingAccountRepository.findByOwnerIdAndDeletedFalse(ownerId);
     }
 
     /**
@@ -137,6 +137,15 @@ public class CheckingAccountService {
         return checkingAccountRepository.findAllByDeletedTrue();
     }
 
+    @PreAuthorize("@accountAuthorization.canAccessCheckingAccount(#accountId, authentication)")
+    public CheckingAccount getCheckingAccountById(Long accountId) {
+        if (accountId == null || accountId <= 0) {
+            throw new BusinessException("Account ID cannot be null or zero");
+        }
+        return checkingAccountRepository.findByIdAndDeletedFalse(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Checking account not found"));
+    }
+
     /**
      * Retrieves a deleted checking account by its ID.
      *
@@ -181,33 +190,20 @@ public class CheckingAccountService {
     /**
      * Registers a new checking account for a client.
      *
-     * <p>This method validates the provided balance, opening date, and owner before creating a new checking account.
-     * It ensures that the balance is not null or negative, the opening date is not in the future, and the owner is valid.</p>
+     * <p>The account is created with zero balance, today's date and ACTIVE status.</p>
      *
-     * @param balance     the initial balance of the checking account
-     * @param openingDate the date when the account was opened
-     * @param owner       the client who owns the checking account
+     * @param ownerId     the ID of the client who will own the checking account
      * @return the newly created CheckingAccount
      * @throws BusinessException if any validation fails
      */
-    @PreAuthorize("@accountAuthorization.canOpenAccountFor(#checkingAccount?.owner?.id, authentication)")
-    public CheckingAccount registerCheckingAccount(BigDecimal balance,
-                                                   LocalDate openingDate,
-                                                   Client owner) {
-        if (balance == null || balance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Checking account balance cannot be null or negative");
+    @PreAuthorize("@accountAuthorization.canOpenAccountFor(#ownerId, authentication)")
+    public CheckingAccount registerCheckingAccount(Long ownerId) {
+        if(ownerId == null || ownerId <= 0){
+            throw new BusinessException("Owner ID cannot be null or zero");
         }
-        if (openingDate == null) {
-            throw new BusinessException("Checking account opening date cannot be null");
-        }
-        if (openingDate.isAfter(LocalDate.now())) {
-            throw new BusinessException("Checking account opening date cannot be in the future");
-        }
-        if (owner == null) {
-            throw new BusinessException("Checking account owner cannot be null");
-        }
-        owner = getActiveOwnerById(owner.getId());
-        CheckingAccount checkingAccount = new CheckingAccount(null, null, balance, openingDate, AccountStatus.ACTIVE, owner);
+        Client owner = getActiveOwnerById(ownerId);
+        BigDecimal balance = BigDecimal.ZERO; // Default initial balance
+        CheckingAccount checkingAccount = new CheckingAccount(null, null, balance, LocalDate.now(), AccountStatus.ACTIVE, owner);
         return createCheckingAccount(checkingAccount);
     }
 
@@ -310,6 +306,9 @@ public class CheckingAccountService {
         }
         if (checkingAccount.getStatus() == AccountStatus.SUSPENDED) {
             throw new BusinessException("Checking account is already suspended.");
+        }
+        if (checkingAccount.getStatus() == AccountStatus.BLOCKED) {
+            throw new BusinessException("Blocked checking account cannot be suspended.");
         }
         checkingAccount.setStatus(AccountStatus.SUSPENDED);
         try {
@@ -414,6 +413,9 @@ public class CheckingAccountService {
         }
         CheckingAccount checkingAccount = checkingAccountRepository.findByIdAndDeletedFalse(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Checking account not found"));
+        if (checkingAccount.getBalance() == null || checkingAccount.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new BusinessException("Checking account balance must be zero before deletion");
+        }
         checkingAccount.setDeleted(true);
         try {
             checkingAccountRepository.saveAndFlush(checkingAccount);
@@ -441,6 +443,7 @@ public class CheckingAccountService {
         }
         CheckingAccount checkingAccount = checkingAccountRepository.findByIdAndDeletedTrue(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deleted checking account not found"));
+        getActiveOwnerById(checkingAccount.getOwner().getId());
         checkingAccount.setDeleted(false);
         try {
             return checkingAccountRepository.saveAndFlush(checkingAccount);
@@ -487,7 +490,11 @@ public class CheckingAccountService {
             throw new BusinessException("Client ID cannot be null or zero");
         }
         Optional<Client> client = clientRepository.findByIdAndDeletedFalse(id);
-        return client.orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+        Client owner = client.orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+        if (owner.getStatus() != ClientStatus.ACTIVE) {
+            throw new BusinessException("Client owner must be ACTIVE");
+        }
+        return owner;
     }
 
     /**
@@ -513,17 +520,23 @@ public class CheckingAccountService {
         if (checkingAccount == null) {
             throw new BusinessException("Checking account cannot be null");
         }
-        if (checkingAccount.getBalance() == null || checkingAccount.getBalance().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Checking account balance cannot be null or negative");
+        if (checkingAccount.getBalance() == null || checkingAccount.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new BusinessException("Checking account must be created with a zero balance");
         }
         if (checkingAccount.getOpeningDate() == null) {
             throw new BusinessException("Checking account opening date cannot be null");
+        }
+        if (!checkingAccount.getOpeningDate().equals(LocalDate.now())) {
+            throw new BusinessException("Checking account opening date must be today");
         }
         if (checkingAccount.getStatus() == null) {
             throw new BusinessException("Checking account status cannot be null");
         }
         if (checkingAccount.getStatus() != AccountStatus.ACTIVE){
             throw new BusinessException("Checking account status must be ACTIVE");
+        }
+        if (checkingAccount.getOwner() == null) {
+            throw new BusinessException("Checking account must have an owner");
         }
         checkingAccount.setOwner(getActiveOwnerById(checkingAccount.getOwner().getId()));
     }

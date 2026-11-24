@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/checking-accounts")
+@RequestMapping("/accounts/checking-accounts")
 public class CheckingAccountController {
 
     private final CheckingAccountService checkingAccountService;
@@ -35,8 +35,15 @@ public class CheckingAccountController {
     @GetMapping
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
     public ResponseEntity<List<AccountProfileResponse>> getAllCheckingAccounts() {
-        List<AccountProfileResponse> response = toProfiles(checkingAccountService.getAllCheckingAccounts());
+        List<AccountProfileResponse> response = toProfiles(checkingAccountService.getAllActiveCheckingAccounts());
         return response.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{accountId}")
+    @PreAuthorize("@accountAuthorization.canAccessCheckingAccount(#accountId, authentication)")
+    public ResponseEntity<AccountProfileResponse> getCheckingAccountById(@PathVariable Long accountId) {
+        CheckingAccount account = checkingAccountService.getCheckingAccountById(accountId);
+        return ResponseEntity.ok(mapToAccountProfileResponse(account));
     }
 
     /**
@@ -47,11 +54,11 @@ public class CheckingAccountController {
      * @return a ResponseEntity containing an AccountProfileResponse object representing the checking account,
      * or a not found response if no account is found
      */
-    @GetMapping("/search/owner/ownerId")
+    @GetMapping("/search/owner/{ownerId}")
     @PreAuthorize("@accountAuthorization.canSearchAccount(authentication)")
-    public ResponseEntity<AccountProfileResponse> getCheckingAccountByOwnerId(@PathVariable Long ownerId) {
-        CheckingAccount account = checkingAccountService.getCheckingAccountByOwnerId(ownerId);
-        return ResponseEntity.ok(mapToAccountProfileResponse(account));
+    public ResponseEntity<List<AccountProfileResponse>> getCheckingAccountByOwnerId(@PathVariable Long ownerId) {
+        List<AccountProfileResponse> response = toProfiles(checkingAccountService.getCheckingAccountByOwnerId(ownerId));
+        return response.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
     }
 
     /**
@@ -138,12 +145,10 @@ public class CheckingAccountController {
      * or a bad request response if the request is invalid
      */
     @PostMapping
-    @PreAuthorize("@accountAuthorization.canOpenAccountFor(#checkingAccount?.owner?.id, authentication)")
+    @PreAuthorize("@accountAuthorization.canOpenAccountFor(#request.ownerId(), authentication)")
     public ResponseEntity<CheckingAccountCreateResponse> insertCheckingAccount(@Valid @RequestBody CheckingAccountCreateRequest request) {
         CheckingAccount checkingAccount = checkingAccountService.registerCheckingAccount(
-                request.balance(),
-                request.openingDate(),
-                request.owner()
+                request.ownerId()
         );
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(checkingAccount.getId()).toUri();
