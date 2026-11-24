@@ -10,7 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a joint account in the banking system.
@@ -31,7 +31,7 @@ public class JointAccount extends Account {
     @ManyToMany
     @JoinTable(name = "joint_account_owner", joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "client_id"))
-    private List<Client> owners;
+    private Set<Client> owners;
 
     /**
      * Default constructor for the JointAccount class.
@@ -51,7 +51,7 @@ public class JointAccount extends Account {
      * @param status        the current status of the account
      * @param owners        the list of clients who own this joint account
      */
-    public JointAccount(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status, List<Client> owners) {
+    public JointAccount(Long id, String accountNumber, BigDecimal balance, LocalDate openingDate, AccountStatus status, Set<Client> owners) {
         super(id, accountNumber, balance, openingDate, status);
         this.owners = owners;
     }
