@@ -1,20 +1,17 @@
 package com.tuon.tbank.controller.account;
 
 import com.tuon.tbank.dto.account.*;
-import com.tuon.tbank.entity.account.Account;
 import com.tuon.tbank.entity.account.BusinessAccount;
 import com.tuon.tbank.enums.company.CompanyMemberRole;
 import com.tuon.tbank.enums.company.MembershipStatus;
 import com.tuon.tbank.service.account.AccountService;
 import com.tuon.tbank.service.account.BusinessAccountService;
 import jakarta.validation.Valid;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -144,12 +141,10 @@ public class BusinessAccountController {
      * @return a ResponseEntity containing the AccountBalanceResponse or not found if the account does not exist
      */
     @PostMapping
-    @PreAuthorize("@accountAuthorization.canOpenBusinessAccountFor(#companyId, authentication)")
+    @PreAuthorize("@accountAuthorization.canOpenBusinessAccountFor(#request.companyId(), authentication)")
     public ResponseEntity<BusinessAccountCreateResponse> insertBusinessAccount(@Valid @RequestBody BusinessAccountCreateRequest request) {
         BusinessAccount businessAccount = businessAccountService.registerBusinessAccount(
-                request.balance(),
-                request.openingDate(),
-                request.owner());
+                request.companyId());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(businessAccount.getId()).toUri();
         return ResponseEntity.created(uri).body(new BusinessAccountCreateResponse(
@@ -167,8 +162,8 @@ public class BusinessAccountController {
      * @param request   the account status update request containing the account number
      * @return a ResponseEntity containing the AccountProfileResponse of the blocked account
      */
-    @PatchMapping("/{id}/block")
-    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountNumber, authentication)")
+    @PatchMapping("/{accountId}/block")
+    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountId, authentication)")
     public ResponseEntity<AccountProfileResponse> blockBusinessAccount(@PathVariable Long accountId,
                                                                        @Valid @RequestBody AccountStatusUpdateRequest request) {
         return ResponseEntity.ok(mapToAccountProfileResponse(businessAccountService.blockBusinessAccount(accountId, request.accountNumber())));
@@ -181,8 +176,8 @@ public class BusinessAccountController {
      * @param request   the account status update request containing the account number
      * @return a ResponseEntity containing the AccountProfileResponse of the suspended account
      */
-    @PatchMapping("/{id}/suspend")
-    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountNumber, authentication)")
+    @PatchMapping("/{accountId}/suspend")
+    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountId, authentication)")
     public ResponseEntity<AccountProfileResponse> suspendBusinessAccount(@PathVariable Long accountId,
                                                                          @Valid @RequestBody AccountStatusUpdateRequest request) {
         return ResponseEntity.ok(mapToAccountProfileResponse(businessAccountService.suspendBusinessAccount(accountId, request.accountNumber())));
@@ -195,8 +190,8 @@ public class BusinessAccountController {
      * @param request   the account status update request containing the account number
      * @return a ResponseEntity containing the AccountProfileResponse of the reactivated account
      */
-    @PatchMapping("/{id}/reactivate")
-    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountNumber, authentication)")
+    @PatchMapping("/{accountId}/reactivate")
+    @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountId, authentication)")
     public ResponseEntity<AccountProfileResponse> reactivateBusinessAccount(@PathVariable Long accountId,
                                                                            @Valid @RequestBody AccountStatusUpdateRequest request) {
         return ResponseEntity.ok(mapToAccountProfileResponse(businessAccountService.reactivateBusinessAccount(accountId, request.accountNumber())));

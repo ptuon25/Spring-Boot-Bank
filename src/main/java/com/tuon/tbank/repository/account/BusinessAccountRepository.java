@@ -82,6 +82,8 @@ public interface BusinessAccountRepository extends JpaRepository<BusinessAccount
      */
     Optional<BusinessAccount> findByIdAndDeletedFalse(Long accountId);
 
+    Optional<BusinessAccount> findByIdAndDeletedTrue(Long accountId);
+
     /**
      * Retrieves a business account by its account number, ensuring it is not marked as deleted.
      *

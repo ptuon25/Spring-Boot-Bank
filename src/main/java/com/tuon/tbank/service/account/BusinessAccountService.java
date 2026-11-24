@@ -7,6 +7,7 @@ import com.tuon.tbank.entity.company.CompanyMembership;
 import com.tuon.tbank.enums.account.AccountStatus;
 import com.tuon.tbank.enums.company.CompanyMemberRole;
 import com.tuon.tbank.enums.company.MembershipStatus;
+import com.tuon.tbank.enums.company.CompanyStatus;
 import com.tuon.tbank.exception.serviceException.BusinessException;
 import com.tuon.tbank.exception.serviceException.DatabaseException;
 import com.tuon.tbank.exception.serviceException.ResourceNotFoundException;
@@ -187,31 +188,19 @@ public class BusinessAccountService {
     /**
      * Registers a new business account with the specified details.
      * <p>This method will create a new business account with the provided details and save it to the database.</p>
-     *
-     * @param balance     the initial balance of the account
-     * @param openingDate the date when the account was opened
-     * @param owner       the company that owns this business account
+     * @param companyId the ID of the company that will own the new business account
      * @return the newly created business account
      * @throws BusinessException if any of the parameters are null or invalid
      */
-    @PreAuthorize("@accountAuthorization.canOpenBusinessAccountFor(#owner?.id, authentication)")
-    public BusinessAccount registerBusinessAccount(BigDecimal balance, LocalDate openingDate, Company owner) {
-        if (balance == null) {
-            throw new BusinessException("Balance cannot be null");
+    @PreAuthorize("@accountAuthorization.canOpenBusinessAccountFor(#companyId, authentication)")
+    public BusinessAccount registerBusinessAccount(Long companyId) {
+        if(companyId == null || companyId <= 0) {
+            throw new BusinessException("Company ID cannot be null or zero");
         }
-        if (balance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Balance cannot be negative");
-        }
-        if (openingDate == null) {
-            throw new BusinessException("Opening date cannot be null");
-        }
-        if (owner == null) {
-            throw new BusinessException("Owner cannot be null");
-        }
-
-        owner = getActiveOwnerById(owner.getId());
+        Company owner = getActiveOwnerById(companyId);
+        BigDecimal balance = BigDecimal.ZERO; // Default balance for new business accounts
         BusinessAccount businessAccount = new BusinessAccount(
-                null, null, balance, openingDate, AccountStatus.ACTIVE, owner);
+                null, null, balance, LocalDate.now(), AccountStatus.ACTIVE, owner);
 
         return createBusinessAccount(businessAccount);
     }
@@ -285,6 +274,9 @@ public class BusinessAccountService {
      */
     @PreAuthorize("@accountAuthorization.canManageBusinessAccountByNumber(#accountNumber, authentication)")
     public BusinessAccount suspendBusinessAccount(Long id, String accountNumber) {
+        if (id == null || id <= 0) {
+            throw new BusinessException("Account ID cannot be null or zero");
+        }
         String normalizedAccountNumber = buildBusinessAccountNumber(accountNumber);
         BusinessAccount businessAccount = businessAccountRepository.findByAccountNumberAndDeletedFalse(normalizedAccountNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Business account not found with account number: " + normalizedAccountNumber));
@@ -358,10 +350,6 @@ public class BusinessAccountService {
         if (newOwnerId == null || newOwnerId <= 0) {
             throw new BusinessException("New owner ID cannot be null or zero");
         }
-        Optional<CompanyMembership> member = companyMembershipRepository.findById(newOwnerId);
-        if( member.isEmpty() || member.get().getStatus() != MembershipStatus.ACTIVE) {
-            throw new BusinessException("New owner must be an active member of the company");
-        }
         BusinessAccount businessAccount = businessAccountRepository.findByIdAndDeletedFalse(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business account not found with id: " + accountId));
 
@@ -395,6 +383,9 @@ public class BusinessAccountService {
 
         BusinessAccount businessAccount = businessAccountRepository.findByIdAndDeletedFalse(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business account not found with id: " + accountId));
+        if (businessAccount.getBalance() == null || businessAccount.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new BusinessException("Business account balance must be zero before deletion");
+        }
 
         businessAccount.setDeleted(true);
         try {
@@ -410,8 +401,9 @@ public class BusinessAccountService {
             throw new BusinessException("Account ID cannot be null or zero");
         }
 
-        BusinessAccount businessAccount = businessAccountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Business account not found with id: " + accountId));
+        BusinessAccount businessAccount = businessAccountRepository.findByIdAndDeletedTrue(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Deleted business account not found with id: " + accountId));
+        getActiveOwnerById(businessAccount.getOwner().getId());
 
         businessAccount.setDeleted(false);
         try {
@@ -459,7 +451,11 @@ public class BusinessAccountService {
             throw new BusinessException("Company ID cannot be null or zero");
         }
         Optional<Company> company = companyRepository.findByIdAndDeletedFalse(id);
-        return company.orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        Company owner = company.orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        if (owner.getStatus() != CompanyStatus.ACTIVE) {
+            throw new BusinessException("Company owner must be ACTIVE");
+        }
+        return owner;
     }
 
     /**
@@ -483,11 +479,14 @@ public class BusinessAccountService {
         if (businessAccount == null) {
             throw new BusinessException("Account cannot be null");
         }
-        if (businessAccount.getBalance() == null || businessAccount.getBalance().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Business Account balance cannot be null or negative");
+        if (businessAccount.getBalance() == null || businessAccount.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new BusinessException("Business Account must be created with a zero balance");
         }
         if (businessAccount.getOpeningDate() == null) {
             throw new BusinessException("Business Account opening date cannot be null");
+        }
+        if (!businessAccount.getOpeningDate().equals(LocalDate.now())) {
+            throw new BusinessException("Business Account opening date must be today");
         }
         if (businessAccount.getStatus() == null) {
             throw new BusinessException("Business Account status cannot be null");
