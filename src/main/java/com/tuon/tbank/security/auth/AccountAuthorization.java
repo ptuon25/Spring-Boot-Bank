@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -303,22 +304,21 @@ public class AccountAuthorization {
      * Determines whether the authenticated principal can open a joint account
      * for the given owners.
      *
-     * @param owner1Id       the ID of the first owner
-     * @param owner2Id       the ID of the second owner
+     * @param ownerIds       the IDs of the clients who will own the account
      * @param authentication the current authentication
-     * @return {@code true} for a MANAGER or ADMIN employee, or for a client that is
-     * one of the two owners; {@code false} otherwise
+     * @return {@code true} for a MANAGER or ADMIN employee, or for a client opening
+     * an account in their own name; {@code false} otherwise
      */
-    public boolean canOpenJointAccountFor(Long owner1Id, Long owner2Id, Authentication authentication) {
-        if (owner1Id == null || owner2Id == null || !isAuthenticated(authentication)) {
+    public boolean canOpenJointAccountFor(Collection<Long> ownerIds, Authentication authentication) {
+        if (ownerIds == null || ownerIds.isEmpty() || !isAuthenticated(authentication)) {
             return false;
         }
         if (isEmployee(authentication)) {
             return canManageAccount(authentication);
         }
+
         Long clientId = getClientId(authentication);
-        return clientId != null
-                && (clientId.equals(owner1Id) || clientId.equals(owner2Id));
+        return clientId != null && ownerIds.contains(clientId);
     }
 
     /**
