@@ -86,6 +86,7 @@ public class SecurityConfig {
                             .hasAnyAuthority("ROLE_CLIENT", "ROLE_MANAGER", "ROLE_ADMIN")
                             .requestMatchers("/companies/*/members/**")
                             .hasAnyAuthority("ROLE_CLIENT", "ROLE_MANAGER", "ROLE_ADMIN")
+                            .requestMatchers("/checking-accounts/**", "/accounts/business-accounts/**").authenticated()
                             .anyRequest().hasAnyAuthority("ROLE_ASSOCIATE", "ROLE_MANAGER", "ROLE_ADMIN");
                 })
                 .exceptionHandling(exceptions -> exceptions
