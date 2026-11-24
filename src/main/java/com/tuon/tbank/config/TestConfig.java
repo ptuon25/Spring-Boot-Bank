@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Configures sample banking data for the test profile.
@@ -145,7 +146,7 @@ public class TestConfig implements CommandLineRunner {
                 LocalDate.of(2022, 5, 10), AccountStatus.ACTIVE, client1);
 
         JointAccount jAccount = new JointAccount(null, "000004", BigDecimal.valueOf(2500.00),
-                LocalDate.of(2024, 2, 1), AccountStatus.ACTIVE, Arrays.asList(client1, client2));
+                LocalDate.of(2024, 2, 1), AccountStatus.ACTIVE, new HashSet<>(Arrays.asList(client1, client2)));
 
         SavingsAccount sAccount = new SavingsAccount(null, "000005", BigDecimal.valueOf(1500.00),
                 LocalDate.of(2025, 2, 1), AccountStatus.ACTIVE, client2, BigDecimal.valueOf(0.03));
