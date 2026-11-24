@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountNumberGenerator {
 
+    public static final String CHECKING_ACCOUNT_PREFIX = "CA";
+    public static final String BUSINESS_ACCOUNT_PREFIX = "BA";
+    public static final String SAVINGS_ACCOUNT_PREFIX = "SA";
+    public static final String JOINT_ACCOUNT_PREFIX = "JA";
+
     private final AccountRepository accountRepository;
 
     public AccountNumberGenerator(AccountRepository accountRepository) {
