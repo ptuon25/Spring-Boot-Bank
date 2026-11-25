@@ -455,7 +455,7 @@ public class CheckingAccountService {
     // AUXILIARY
 
     /**
-     * Builds a valid business account number by ensuring it has the correct prefix and format.
+     * Builds a valid checking account number by ensuring it has the correct prefix and format.
      *
      * @param number the raw account number input
      * @return a formatted business account number with the "CA-" prefix
