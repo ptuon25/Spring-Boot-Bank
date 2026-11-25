@@ -117,7 +117,7 @@ public class JointAccountService {
      * @return an {@link AccountBalanceResponse} containing the account's balance information
      * @throws ResourceNotFoundException if the joint account is not found
      */
-    @PreAuthorize("@accountAuthorization.canAccesJointAccount(#accountId, authentication)")
+    @PreAuthorize("@accountAuthorization.canAccessJointAccount(#accountId, authentication)")
     public AccountBalanceResponse getJointAccountBalance(Long accountId) {
         if (accountId == null || accountId <= 0) {
             throw new BusinessException("Account ID cannot be null or zero");
@@ -166,12 +166,17 @@ public class JointAccountService {
     /**
      * Registers a new joint account with the specified owners.
      *
-     * @param ownersIds the IDs of the owners
+     * @param owner1Id the ID of the first owner
+     * @param owner2Id the ID of the second owner
      * @return the created joint account
      * @throws BusinessException if the number of owners is not exactly two
      */
     @PreAuthorize("@accountAuthorization.canOpenJointAccountFor(#ownersIds, authentication)")
-    public JointAccount registerJointAccount(@P("ownersIds") Collection<Long> ownersIds) {
+    public JointAccount registerJointAccount(Long owner1Id, Long owner2Id) {
+        if (owner1Id == null || owner2Id == null) {
+            throw new BusinessException("Owner IDs cannot be null");
+        }
+        Set<Long> ownersIds = Set.of(owner1Id, owner2Id);
         if (ownersIds == null || ownersIds.size() != 2) {
             throw new BusinessException("Joint account must have exactly two owners");
         }
